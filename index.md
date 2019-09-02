@@ -5,7 +5,7 @@ I am a PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My rese
 Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivoliers, EGSR 2019  
 [Project Page](https://bfraboni.github.io/amvpt)
 
-## Experience
+## Experience
 
 2017 Feb. - Aug. **Variance reduction methods by correlated sampling for multi-camera rendering**,  
 *Mercenaries Engineering, LIRIS, University Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
