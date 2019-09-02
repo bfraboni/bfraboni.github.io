@@ -8,6 +8,8 @@ Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivo
 ## Education
 
 **2017 - 2019** PhD Thesis in Computer Graphics, INSA de Lyon, France  
+> Realistic rendering - Monte Carlo integration - Path tracing
+
 **2015 – 2017** Masters in Computer Science, Université Claude Bernard Lyon 1, France  
 > 3D Rendering - Image processing - Meshing - Geometric Modeling  
 > Computer Vision - Augmented / Virtual reality - Physical Engines - Animation
