@@ -9,7 +9,7 @@ Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivo
 
 <font color='rgb(0,255,0)'>
   2017 Feb. - Aug.
-<\font> 
+</font> 
 **Variance reduction methods by correlated sampling for multi-camera rendering**,
 *Mercenaries Engineering, LIRIS, University Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
 > Improvement of the convergence of the rendering algorithm for stereo pairs in 3D animation movies  
