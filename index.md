@@ -1,13 +1,11 @@
-## Basile Fraboni
-
 I am a PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My research area focuses on realistic rendering techniques and numerical integration.
 
-# Publications
+## Publications
 
 Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivoliers, EGSR 2019
 [Project Page](https://bfraboni.github.io/amvpt)
 
-# Education
+## Education
 
 2015 – 2017 Masters in Computer Science, University Claude Bernard Lyon 1, France
 → 3D Rendering - Image processing - Meshing - Geometric Modeling
@@ -18,14 +16,14 @@ Science, France - Vietnam
 2011 – 2012 Preparatory class for high scien�fic school, La Martiniere Monplaisir, France
 2011        High school diploma with merit, engineering science stream, Pierre Brossolette, France
 
-# Skills
+## Skills
 
 Main  C - C++
 Web   HTML - CSS - JavaScript - PHP - J2E
 Env   GNU/Linux
 Misc  Python, Bash, Latex, R
 
-# Languages
+## Languages
 French    Mother Tongue
 English   Advanced - *fluent, professional practice*
 German    Intermediate - *good working knowledge*
