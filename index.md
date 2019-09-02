@@ -7,22 +7,18 @@ Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivo
 
 ## Experience
 
-2017 Oct. - 2019 **Teaching**,  
-Université Claude Bernard Lyon 1.  
-> Algorithmics - Programmation - C - C++ - SDL - OpenGL
+2017 Oct. - 2019 **Teaching**, Université Claude Bernard Lyon 1.  
+> Algorithmics - Data structures - Programmation - C - C++ - SDL - OpenGL
 
-2017 Feb. - Aug. **Variance reduction methods by correlated sampling for multi-camera rendering**,  
-*Mercenaries Engineering, LIRIS, University Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
+2017 Feb. - Aug. **Variance reduction methods by correlated sampling for multi-camera rendering**, *Mercenaries Engineering, LIRIS, Université Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
 > Improvement of the convergence of the rendering algorithm for stereo pairs in 3D animation movies  
 > Global illumination - Stereo Vision - Path projection - C++
 
-2016 Jan. - Feb. **Camera network calibration by mobile object tracking**,  
-*University Claude Bernard Lyon 1, Lyon - France, Supervised Research Project.*  
+2016 Jan. - Feb. **Camera network calibration by mobile object tracking**, *Université Claude Bernard Lyon 1, Lyon - France, Supervised Research Project.*  
 > Computation of camera positions by mobile object tracking in a camera network  
 > Camera calibration - Object tracking - Stereo Vision - Triangulation - C++
 
-2015 May - Jul. **Development and integration of an internal exchange management tool**,  
-*MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*  
+2015 May - Jul. **Development and integration of an internal exchange management tool**, *MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*  
 > PHP - SQL - JS - HTML - CSS
 
 ## Education
