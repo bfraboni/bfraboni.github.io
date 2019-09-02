@@ -5,6 +5,22 @@ I am a PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My rese
 Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivoliers, EGSR 2019  
 [Project Page](https://bfraboni.github.io/amvpt)
 
+## Experience
+
+<font color='rgb(0,255,0)'>2017 Feb. - Aug.<\font> **Variance reduction methods by correlated sampling for multi-camera rendering**,
+*Mercenaries Engineering, LIRIS, University Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
+> Improvement of the convergence of the rendering algorithm for stereo pairs in 3D animation movies  
+> Global illumination - Stereo Vision - Path projection - C++
+
+**2016 Jan. - Feb.** **Camera network calibration by mobile object tracking**,
+University Claude Bernard Lyon 1, Lyon - France, Supervised Research Project  
+> Computation of camera positions by mobile object tracking in a camera network  
+> Camera calibration - Object tracking - Stereo Vision - Triangulation - C++
+
+**2015 May - Jul.** **Development and integration of an internal exchange management tool**,
+*MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*
+> PHP - SQL - JS - HTML - CSS
+
 ## Education
 
 **2017 - 2019** PhD Thesis in Computer Graphics, INSA de Lyon, France  
@@ -32,3 +48,11 @@ Science, France - Vietnam
 **French**    Mother Tongue  
 **English**   Advanced - *fluent, professional practice*  
 **German**    Intermediate - *good working knowledge*
+
+## Interests
+
+BAFA qualification, 4 years experience as youth leader in day-care centers and holiday camps  
+Outdoor sports, Mountaineering, Snowboard instructor at UCBL (2012 - 2014)  
+Music, practicing guitar for 14 years  
+Embedded systems and DIY
+Lego :)
