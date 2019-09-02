@@ -25,7 +25,7 @@ Science, France - Vietnam
 **Main**  C - C++ - JAVA  
 **Web**   HTML - CSS - JavaScript - PHP - J2E  
 **Env**   GNU/Linux  
-**Misc**  Python, Bash, Latex, R
+**Misc**  Python, Bash, Latex, R, Git
 
 ## Languages
 
