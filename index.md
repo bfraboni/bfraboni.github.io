@@ -51,11 +51,11 @@ Adaptive multi view path tracing, Basile Fraboni, Jean-Claude Iehl, Vincent Nivo
 *Université Claude Bernard Lyon 1, France.*
 
 2011 – 2012  
-**Preparatory class for high scientific school**, 
+**Preparatory class for high scientific school**,  
 *La Martiniere Monplaisir, France.*
 
 2011  
-**High school diploma with merit, engineering science stream**, 
+**High school diploma with merit, engineering science stream**,  
 *Pierre Brossolette, France*
 
 ## Skills
