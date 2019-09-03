@@ -1,7 +1,7 @@
 # Site Author
 author:
-  name             : "Basile Fraboni"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  name             : # "Basile Fraboni"
+  avatar           : "_data/small.jpg"
   bio              : "PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My research area focuses on realistic rendering techniques and numerical integration."
   location         : "Lyon, France"
   email            : "basile.fraboni@insa-lyon.fr"
