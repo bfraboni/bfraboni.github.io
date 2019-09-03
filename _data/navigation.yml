@@ -1,7 +1,7 @@
 # main links
 main:
   - title: "Resume"
-    url: resume.html
+    url: /resume.html
   - title: "Posts"
     url: /year-archive/
   - title: "Sample Collections"
