@@ -2,9 +2,9 @@
 main:
   - title: "Resume"
     url: https:/bfraboni.github.io/resume
-  # - title: "Posts"
-  #   url: /year-archive/
-  # - title: "Sample Collections"
-  #   url: /collection-archive/
-  # - title: "Sitemap"
-  #   url: /sitemap/
+  - title: "Posts"
+    url: /year-archive/
+  - title: "Sample Collections"
+    url: /collection-archive/
+  - title: "Sitemap"
+    url: /sitemap/
