@@ -106,53 +106,32 @@ analytics:
 
 
 # Site Author
-author:
-  name             : "Basile Fraboni"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My research area focuses on realistic rendering techniques and numerical integration."
-  location         : "Lyon, France"
-  email            : "basile.fraboni@insa-lyon.fr"
-  links:
-    - label: "Email"
-      icon: "fas fa-fw fa-envelope-square"
-      url: mailto:basile.fraboni@insa-lyon.fr
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      # url: "https://your-website.com"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      # url: "https://twitter.com/"
-    - label: "Facebook"
-      icon: "fab fa-fw fa-facebook-square"
-      # url: "https://facebook.com/"
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url: "https://github.com/bfraboni"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      # url: "https://instagram.com/"
+# author:
+#   name             : "Basile Fraboni"
+#   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+#   bio              : "PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My research area focuses on realistic rendering techniques and numerical integration."
+#   location         : "Lyon, France"
+#   email            : "basile.fraboni@insa-lyon.fr"
+#   links:
+#     - label: "Email"
+#       icon: "fas fa-fw fa-envelope-square"
+#       url: mailto:basile.fraboni@insa-lyon.fr
+#     - label: "GitHub"
+#       icon: "fab fa-fw fa-github"
+#       url: "https://github.com/bfraboni"
 
 # Site Footer
 footer:
   links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      # url:
-    - label: "Facebook"
-      icon: "fab fa-fw fa-facebook-square"
-      # url:
+    - label: "Email"
+      icon: "fas fa-fw fa-envelope-square"
+      url: mailto:basile.fraboni@insa-lyon.fr
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/bfraboni"
-    - label: "GitLab"
-      icon: "fab fa-fw fa-gitlab"
-      # url:
     - label: "Bitbucket"
       icon: "fab fa-fw fa-bitbucket"
       url: "https://bitbucket.org/bfraboni"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      # url:
 
 
 # Reading Files
