@@ -1,3 +1,5 @@
-theme: jekyll-theme-minimal
+# theme: jekyll-theme-minimal
+remote_theme: mmistakes/minimal-mistakes
 title: Basile Fraboni
 description: Personal Website
+url: "https://bfraboni.github.io"
