@@ -27,6 +27,7 @@ author:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/bfraboni"
 
+# Enable plugins
 plugins:
   - jekyll-paginate
   - jekyll-sitemap
@@ -34,3 +35,19 @@ plugins:
   - jekyll-feed
   - jemoji
   - jekyll-include-cache
+  
+  
+# Defaults
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      # comments: true
+      share: true
+      related: true
+
