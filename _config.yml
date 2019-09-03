@@ -10,19 +10,20 @@
 # Review documentation to determine if you should use `theme` or `remote_theme`
 # https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
 
-remote_theme             : "mmistakes/minimal-mistakes"
-minimal_mistakes_skin    : "dark" # "default", "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+theme                    : "minimal-mistakes-jekyll"
+# remote_theme           : "mmistakes/minimal-mistakes"
+minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
-locale                   : "fr-FR"
-title                    : "Basile Fraboni"
+locale                   : "en-US"
+title                    : "basile braboni"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
-name                     : "Basile Fraboni"
-description              : "Personal Webpage"
-url                      : "https://bfraboni.github.io"
-baseurl                  : "bfraboni.github.io/"
-repository               : "bfraboni/bfraboni.github.io"
+name                     : "basile fraboni"
+description              : "personal website."
+url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+baseurl                  : # the subpath of your site, e.g. "/blog"
+repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
@@ -103,21 +104,17 @@ analytics:
     tracking_id          :
     anonymize_ip         : # true, false (default)
 
-
 # Site Author
-# author:
-#   name             : "Basile Fraboni"
-#   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-#   bio              : "PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My research area focuses on realistic rendering techniques and numerical integration."
-#   location         : "Lyon, France"
-#   email            : "basile.fraboni@insa-lyon.fr"
-#   links:
-#     - label: "Email"
-#       icon: "fas fa-fw fa-envelope-square"
-#       url: mailto:basile.fraboni@insa-lyon.fr
-#     - label: "GitHub"
-#       icon: "fab fa-fw fa-github"
-#       url: "https://github.com/bfraboni"
+author:
+  name             : # "Basile Fraboni"
+  avatar           : "/small.jpg"
+  bio              : "PhD student in computer graphics at INSA Lyon - LIRIS laboratory. My research area focuses on realistic rendering techniques and numerical integration."
+  location         : "Lyon, France"
+  email            : "basile.fraboni@insa-lyon.fr"
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/bfraboni"
 
 # Site Footer
 footer:
@@ -131,7 +128,6 @@ footer:
     - label: "Bitbucket"
       icon: "fab fa-fw fa-bitbucket"
       url: "https://bitbucket.org/bfraboni"
-
 
 # Reading Files
 include:
@@ -169,14 +165,12 @@ keep_files:
 encoding: "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
-
 # Conversion
 markdown: kramdown
 highlighter: rouge
 lsi: false
 excerpt_separator: "\n\n"
 incremental: false
-
 
 # Markdown Processing
 kramdown:
@@ -189,19 +183,16 @@ kramdown:
   smart_quotes: lsquo,rsquo,ldquo,rdquo
   enable_coderay: false
 
-
 # Sass/SCSS
 sass:
   sass_dir: _sass
   style: compressed # https://sass-lang.com/documentation/file.SASS_REFERENCE.html#output_style
 
-
 # Outputting
 permalink: /:categories/:title/
-paginate: 5 # amount of posts to show
+paginate: 10 # amount of posts to show
 paginate_path: /page:num/
 timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-
 
 # Plugins (previously gems:)
 plugins:
@@ -218,7 +209,6 @@ whitelist:
   - jekyll-gist
   - jekyll-feed
   - jekyll-include-cache
-
 
 # Archives
 #  Type
@@ -248,7 +238,6 @@ tag_archive:
 #     category: /categories/:name/
 #     tag: /tags/:name/
 
-
 # HTML Compression
 # - https://jch.penibelst.de/
 compress_html:
@@ -256,17 +245,26 @@ compress_html:
   ignore:
     envs: development
 
-
 # Defaults
+include: ["_pages"]
+include: ["_posts"]
+
 defaults:
   # _posts
   - scope:
       path: ""
       type: posts
     values:
+      layout: single
+      author_profile: true
+      read_time: #false
+      comments: false
+      share: false
+      related: true
+  # _pages
+  - scope:
+      path: ""
+      type: pages
+    values:
       layout: archive
       author_profile: true
-      read_time: true
-      comments: # true
-      share: true
-      related: true
