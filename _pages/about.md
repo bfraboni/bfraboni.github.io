@@ -8,19 +8,18 @@ title: ""
 <span style="color: #00adb5">2017 Feb. - Aug.</span>  
 **Variance reduction method by correlated sampling for multi-camera rendering**,  
 *Mercenaries Engineering, LIRIS, Université Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
-> Global illumination - Stereo Vision - Path projection - C++
+> Global illumination - Stereo Vision - Path projection
 
 ___
 <span style="color: #00adb5">2016 Jan. - Feb</span>  
 **Camera network calibration by mobile object tracking**,  
 *Université Claude Bernard Lyon 1, Lyon - France, Supervised Research Project.*  
-> Camera calibration - Object tracking - Stereo Vision - Triangulation - C++
+> Camera calibration - Object tracking - Triangulation
 
 ___
 <span style="color: #00adb5">2015 May - Jul.</span>  
 **Development and integration of an internal exchange management tool**,  
-*MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*  
-> PHP - SQL - JS - HTML - CSS
+*MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*
 
 ## Education
 
@@ -57,16 +56,16 @@ ___
 
 ## Skills
 
-|**Main**  | C - C++ - OpenGL - JAVA                |
-|**Web**   | HTML - CSS - JavaScript - PHP - J2E    |
-|**Env**   | GNU/Linux                              |
-|**Misc**  | Python, Bash, Latex, R, Git            |
+|**Main**  | C - C++ - OpenGL - JAVA              |
+|**Web**   | HTML - CSS - JavaScript - PHP - J2E  |
+|**Env**   | GNU/Linux                            |
+|**Misc**  | Python - Bash - Latex - R - Git      |
 
 ## Languages
 
-**French**    Mother Tongue  
-**English**   Advanced - *fluent, professional practice*  
-**German**    Intermediate - *good working knowledge*
+|**French**     |   Mother Tongue   |                                   |
+|**English**    |   Advanced        | *fluent, professional practice*   |
+|**German**     |   Intermediate    | *good working knowledge*          |
 
 ## Interests
 

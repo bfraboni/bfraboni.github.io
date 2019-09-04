@@ -1,8 +1,10 @@
 ---
 permalink: /teaching/
-title: "Teaching"
+title: ""
 ---
-___
+
+## Teaching
+
 <span style="color: #00adb5">2019</span>  
 **Algorithmique, Programmation et Complexité**,  
 *Université Claude Bernard Lyon 1.*   
