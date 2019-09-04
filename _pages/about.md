@@ -5,52 +5,47 @@ title: Resume
 
 ## Experience
 
-<span style="color: darkslateblue">
-    2017 Feb. - Aug.
-</span>  
+<span style="color: #00adb5">2017 Feb. - Aug.</span>  
 **Variance reduction method by correlated sampling for multi-camera rendering**,  
 *Mercenaries Engineering, LIRIS, Université Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
 > Global illumination - Stereo Vision - Path projection - C++
 
 ___
-<span style="color: darkslateblue">
-    2016 Jan. - Feb
-</span>  
+<span style="color: #00adb5">2016 Jan. - Feb</span>  
 **Camera network calibration by mobile object tracking**,  
 *Université Claude Bernard Lyon 1, Lyon - France, Supervised Research Project.*  
 > Camera calibration - Object tracking - Stereo Vision - Triangulation - C++
 
-2015 May - Jul.  
+<span style="color: #00adb5">2015 May - Jul.</span>  
 **Development and integration of an internal exchange management tool**,  
 *MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*  
 > PHP - SQL - JS - HTML - CSS
 
 ## Education
 
-2017 - 2019   
+<span style="color: #00adb5">2017 - 2019</span>  
 **PhD Thesis in Computer Graphics**,  
 *INSA de Lyon, LIRIS, France.*  
 > Realistic rendering - Monte Carlo integration - Path tracing
 
-2015 – 2017  
+<span style="color: #00adb5">2015 – 2017</span>  
 **Masters in Computer Science**,  
 *Université Claude Bernard Lyon 1, France.*  
-> 3D Rendering - Image processing - Meshing - Geometric Modeling  
-> Computer Vision - Augmented / Virtual reality - Physical Engines - Animation
+> 3D Rendering - Image processing - Meshing - Geometric Modeling - Computer Vision - Augmented / Virtual reality - Physical Engines - Animation
 
-2013 – 2015  
+<span style="color: #00adb5">2013 – 2015</span>  
 **Bachelors in Computer Science**,  
 *Université Claude Bernard Lyon 1, France - Ho Chi Minh University of Science, Vietnam.*  
 
-2012 – 2013  
+<span style="color: #00adb5">2012 – 2013</span>  
 **2nd year of Bachelors in Mathematics**,  
 *Université Claude Bernard Lyon 1, France.*
 
-2011 – 2012  
+<span style="color: #00adb5">2011 – 2012</span>  
 **Preparatory class for high scientific school**,  
 *La Martiniere Monplaisir, France.*
 
-2011  
+<span style="color: #00adb5">2011</span>  
 **High school diploma with merit, engineering science stream**,  
 *Pierre Brossolette, France*
 
@@ -71,5 +66,5 @@ ___
 
 BAFA qualification, 4 years experience as youth leader in day-care centers and holiday camps  
 Outdoor sports, Mountaineering, Snowboard instructor at UCBL (2012 - 2014)  
-Music, practicing guitar for 14 years
-Small swedish bricks :)
+Music, practicing guitar for 14 years  
+Small swedish bricks :)  
