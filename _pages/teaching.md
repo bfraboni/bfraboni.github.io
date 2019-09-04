@@ -3,13 +3,16 @@ permalink: /teaching/
 ---
 
 ## Teaching
+
 ___
 <span style="color: darkslateblue">
-    2019     
+    2019  
 </span>  
 **Algorithmique, Programmation et Complexité**,  
-*Université Claude Bernard Lyon 1.*  
-> Algorithmic - Programming - Complexity - C++
+*Université Claude Bernard Lyon 1.*   
+~~~
+C/C++
+~~~
 
 ___
 <span style="color: darkslateblue">
