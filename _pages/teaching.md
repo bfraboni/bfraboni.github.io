@@ -6,7 +6,7 @@ title: ""
 ## Teaching
 
 <span style="color: #00adb5">2019</span>  
-**Algorithmique, Programmation et Complexité**,  
+**Algorithmique, programmation et complexité**,  
 *Université Claude Bernard Lyon 1.*   
 
 ___
@@ -14,7 +14,7 @@ ___
 **Programmation avancée**,  
 *Université Claude Bernard Lyon 1.*  
 
-**Algorithmique, Programmation et Complexité**,  
+**Algorithmique, programmation et complexité**,  
 *Université Claude Bernard Lyon 1.*  
 
 **Algorithmique et programmation récursive**,  

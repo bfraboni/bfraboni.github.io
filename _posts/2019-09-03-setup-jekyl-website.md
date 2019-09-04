@@ -1,6 +1,5 @@
 ---
-layout: posts
-title:  "Set up Jekyll"
+title:  "Set up Jekyll website"
 ---
 
 ## How to set up a Github static page with Jekill

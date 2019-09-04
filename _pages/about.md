@@ -10,13 +10,11 @@ title: ""
 *Mercenaries Engineering, LIRIS, Université Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
 > Global illumination - Stereo Vision - Path projection
 
-___
 <span style="color: #00adb5">2016 Jan. - Feb</span>  
 **Camera network calibration by mobile object tracking**,  
 *Université Claude Bernard Lyon 1, Lyon - France, Supervised Research Project.*  
 > Camera calibration - Object tracking - Triangulation
 
-___
 <span style="color: #00adb5">2015 May - Jul.</span>  
 **Development and integration of an internal exchange management tool**,  
 *MSI Laboratory, IFI, Hanoi University of Science, Hanoi - Vietnam, Intern.*
@@ -28,28 +26,23 @@ ___
 *INSA de Lyon, LIRIS, France.*  
 > Realistic rendering - Monte Carlo integration - Path tracing
 
-___
 <span style="color: #00adb5">2015 – 2017</span>  
 **Masters in Computer Science**,  
 *Université Claude Bernard Lyon 1, France.*  
 > 3D Rendering - Image processing - Meshing - Geometric Modeling - Computer Vision - Augmented / Virtual reality - Physical Engines - Animation
 
-___
 <span style="color: #00adb5">2013 – 2015</span>  
 **Bachelors in Computer Science**,  
 *Université Claude Bernard Lyon 1, France - Ho Chi Minh University of Science, Vietnam.*  
 
-___
 <span style="color: #00adb5">2012 – 2013</span>  
 **2nd year of Bachelors in Mathematics**,  
 *Université Claude Bernard Lyon 1, France.*
 
-___
 <span style="color: #00adb5">2011 – 2012</span>  
 **Preparatory class for high scientific school**,  
 *La Martiniere Monplaisir, France.*
 
-___
 <span style="color: #00adb5">2011</span>  
 **High school diploma with merit, engineering science stream**,  
 *Pierre Brossolette, France*
@@ -69,7 +62,7 @@ ___
 
 ## Interests
 
-BAFA qualification, 4 years experience as youth leader in day-care centers and holiday camps  
-Outdoor sports, Mountaineering, Snowboard instructor at UCBL (2012 - 2014)  
-Music, practicing guitar for 14 years  
-Small swedish bricks :)  
+| 4 years experience as youth leader in day-care centers and holiday camps  |
+| Outdoor sports, Mountaineering, Snowboard instructor at UCBL (2012 - 2014)| 
+| Music, practicing guitar for 14 years                                     |
+| Small swedish bricks :)                                                   |  
