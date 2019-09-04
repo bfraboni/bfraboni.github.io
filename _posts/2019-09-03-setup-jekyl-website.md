@@ -1,4 +1,5 @@
 ---
+layout: posts
 title:  "Set up Jekyll website"
 ---
 
