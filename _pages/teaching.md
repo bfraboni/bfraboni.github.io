@@ -1,18 +1,16 @@
 ---
 permalink: /teaching/
+title: "Teaching"
 ---
-
-# Teaching
-
 ___
-<span style="color: darkslateblue">
+<span style="color: #00adb5">
     2019  
 </span>
 **Algorithmique, Programmation et Complexité**,  
 *Université Claude Bernard Lyon 1.*   
 
 ___
-<span style="color: darkslateblue">
+<span style="color: #00adb5">
     2018  
 </span>
 
@@ -24,7 +22,7 @@ ___
 *Université Claude Bernard Lyon 1.*
 
 ___
-<span style="color: darkslateblue">
+<span style="color: #00adb5">
     2017  
 </span>
 **Algorithmique programmation impérative, initiation**,  
