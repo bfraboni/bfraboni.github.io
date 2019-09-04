@@ -4,14 +4,7 @@ permalink: /about/
 
 ## Experience
 
-<span style="color: darkslateblue">
-    2017 Oct. - 2019
-</span>  
-**Teaching**,  
-*Université Claude Bernard Lyon 1.*  
-> Algorithmics - Data structures - Programmation - C - C++ - SDL - OpenGL
-
- ___
+___
 <span style="color: darkslateblue">
     2017 Feb. - Aug.
 </span>  
@@ -19,7 +12,7 @@ permalink: /about/
 *Mercenaries Engineering, LIRIS, Université Claude Bernard Lyon 1, Lyon - France, Research Intern.*  
 > Global illumination - Stereo Vision - Path projection - C++
 
- ___
+___
 <span style="color: darkslateblue">
     2016 Jan. - Feb
 </span>  
