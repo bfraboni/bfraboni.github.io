@@ -1,8 +1,7 @@
 ---
 permalink: /about/
+title: Resume
 ---
-
-# Resume
 
 ## Experience
 
