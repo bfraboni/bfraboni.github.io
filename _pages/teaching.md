@@ -1,47 +1,36 @@
 ---
 permalink: /teaching/
 ---
-
-## Teaching
-
-___
 <span style="color: darkslateblue">
     2019  
-</span>  
+</span>
 **Algorithmique, Programmation et Complexité**,  
 *Université Claude Bernard Lyon 1.*   
-~~~
-C/C++
-~~~
 
 ___
 <span style="color: darkslateblue">
-    2018   
-</span>  
+    2018  
+</span>
 **Programmation avancée**,  
-*Université Claude Bernard Lyon 1.*  
-> Algorithmic - Programming - Complexity - C++ - Templates
+*Université Claude Bernard Lyon 1.*
 
 ___
 <span style="color: darkslateblue">
-    2018   
-</span>  
+    2018  
+</span>
 **Algorithmique, Programmation et Complexité**,  
-*Université Claude Bernard Lyon 1.*  
-> Algorithmic - Programming - Complexity - C/C++
+*Université Claude Bernard Lyon 1.*
 
 ___
 <span style="color: darkslateblue">
-    2018   
-</span>  
+    2018  
+</span>
 **Algorithmique et programmation récursive**,  
-*Université Claude Bernard Lyon 1.*  
-> Algorithmic - Recursive Programming - Prolog
+*Université Claude Bernard Lyon 1.*
 
 ___
 <span style="color: darkslateblue">
-    2017   
-</span>  
+    2017  
+</span>
 **Algorithmique programmation impérative, initiation**,  
-*Université Claude Bernard Lyon 1.*  
-> Algorithmic - Iterative Programming - C/C++
+*Université Claude Bernard Lyon 1.*
