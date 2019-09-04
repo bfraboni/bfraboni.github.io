@@ -4,3 +4,5 @@ main:
     url: /
   - title: "about"
     url: /about/
+  - title: "teaching"
+    url: /teaching/

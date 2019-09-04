@@ -1,6 +1,6 @@
 ---
 layout: home
-author_profile: false
+author_profile: true
 ---
 
 PhD student in computer graphics at INSA Lyon - LIRIS. My research area focuses on realistic rendering techniques and numerical integration.
