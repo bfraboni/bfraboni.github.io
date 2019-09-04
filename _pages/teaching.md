@@ -2,7 +2,7 @@
 permalink: /teaching/
 ---
 
-## Teaching
+## Teaching
 
 <span style="color: darkslateblue">
     2019  
@@ -14,12 +14,11 @@ ___
 <span style="color: darkslateblue">
     2018  
 </span>
+
 **Programmation avancée**,  
-*Université Claude Bernard Lyon 1.*
-
+*Université Claude Bernard Lyon 1.*  
 **Algorithmique, Programmation et Complexité**,  
-*Université Claude Bernard Lyon 1.*
-
+*Université Claude Bernard Lyon 1.*  
 **Algorithmique et programmation récursive**,  
 *Université Claude Bernard Lyon 1.*
 
