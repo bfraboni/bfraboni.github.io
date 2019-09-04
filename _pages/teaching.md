@@ -2,8 +2,9 @@
 permalink: /teaching/
 ---
 
-## Teaching
+# Teaching
 
+___
 <span style="color: darkslateblue">
     2019  
 </span>
