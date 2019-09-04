@@ -2,9 +2,10 @@
 permalink: /about/
 ---
 
+# Resume
+
 ## Experience
 
-___
 <span style="color: darkslateblue">
     2017 Feb. - Aug.
 </span>  
@@ -71,6 +72,5 @@ ___
 
 BAFA qualification, 4 years experience as youth leader in day-care centers and holiday camps  
 Outdoor sports, Mountaineering, Snowboard instructor at UCBL (2012 - 2014)  
-Music, practicing guitar for 14 years  
-Embedded systems and DIY  
+Music, practicing guitar for 14 years
 Small swedish bricks :)
