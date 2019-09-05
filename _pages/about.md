@@ -23,7 +23,7 @@ title: ""
 
 <span style="color: #00adb5">2017 - 2019</span>  
 **PhD Thesis in Computer Graphics**,  
-*INSA de Lyon, LIRIS, France.*  
+*INSA Lyon, LIRIS, France.*  
 > Realistic rendering - Monte Carlo integration - Path tracing
 
 <span style="color: #00adb5">2015 – 2017</span>  
