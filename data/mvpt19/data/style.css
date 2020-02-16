@@ -69,6 +69,38 @@ p {
   position : relative ;
 }
 
+table {
+  width : 1024px;
+  margin : auto ;
+  position : relative ;
+  margin-top : 20px ;
+  border : 1px solid #adadad ;
+  border-radius : 3px ;
+
+  align-items : center ;
+  padding-left : 5px ;
+  padding-top : 5px ;
+  padding-right : 5px ;
+}
+
+.image-container {
+  width : 512px;
+  margin : auto ;
+  position : relative ;
+  margin-top : 20px ;
+  border : 1px solid #adadad ;
+  border-radius : 3px ;
+
+  align-items : center ;
+  padding-left : 5px ;
+  padding-top : 5px ;
+  padding-right : 5px ;
+}
+
+.image-container img {
+  width : 100% ;
+}
+
 .compare-setting label {
   font-family : 'Sans-serif' ;
 }
