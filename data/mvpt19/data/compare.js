@@ -38,7 +38,8 @@
         }) ;
       } else {
         //sufficient data is available, play
-        videos[0].play() ;
+        // videos[0].play() ;
+        videos[0].pause() ;
       }
     } else {
       //all videos are ready, proceed to setup
@@ -138,8 +139,8 @@
       sources : sources,
       x : w/2, 
       y : h/2, 
-      zoom : 4,
-      speed : 1,
+      zoom : 2,
+      speed : 0.2,
       orientation : 0,
       mag0 : create_magnifier(comparator),
       mag1 : create_magnifier(comparator)
@@ -380,9 +381,9 @@
 
       //source window
       var scale = context.zoom ;
-      var im_x = x - ctx_w / (2*scale) ;
+      var im_x = x - ctx_w / (2.0*scale) ;
       var im_w = ctx_w / scale ;
-      var im_y = y - ctx_h / (2*scale) ;
+      var im_y = y - ctx_h / (2.0*scale) ;
       var im_h = ctx_h / scale ;
 
       //boundary handling
@@ -496,7 +497,7 @@
 
     //play / pause
     var icon = document.createElement("div") ;
-    icon.className = "pause" ;
+    icon.className = "play" ;
     var videos = context.sources.map(c => c.elt).filter(e => e.nodeName == "VIDEO") ;
     icon.addEventListener("click", function() {
       if(icon.classList.contains("play")) {
@@ -527,6 +528,8 @@
     var c0 = context.sources[0].elt ;
     var c1 = context.sources[1].elt ;
     if(c0.nodeName == "VIDEO" || c1.nodeName == "VIDEO") {
+      c0.playbackRate = context.speed;
+      c1.playbackRate = context.speed;
       //play pause
       var playpause = create_play_toggle(context) ;
       settings.appendChild(playpause) ;
