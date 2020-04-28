@@ -1,0 +1,505 @@
+**BSDF models implementation and references**
+
+# Introduction
+
+This document cover some mathematical and implementation details for several bidirectionnal scattering distribution functions (BSDF) in a path tracer.
+It covers several state of the art models such as :
+	- Diffuse models 
+		* Lambert
+		* Rough diffuse isotropic / anisotropic (GGX based) 
+	- Conductors / Tinted conductors  
+	- Dielectrics  
+	- Microfacet distributions
+		* Isotropic GGX
+		* Anisotropic GGX
+	- Rough conductors isotropic / anisotropic (GGX based) 
+	- Rough dielectrics isotropic / anisotropic (GGX based) 
+	- Rough plastic isotropic / anisotropic (GGX based) 
+	- Mix BSDF
+
+<!-- * Oren-Nayar rough diffuse model -->
+<!-- * Diffuse transmission -->
+
+# Geometric configuration
+
+![](data/geometric_configuration.png)
+
+We take by convention that :
+- All directions are unit vectors pointing outwards in a local orthonormal basis $(\omega_g,\omega_t,\omega_b)$ centered at the surface point $p$ (unless otherwise stated).
+- The surface normal $\omega_g$ is always pointing outside the surface and is oriented Z-up. A light direction $\omega_i$ in the same hemisphere as the normal is entering the object, exiting otherwise.  
+- For isotropic materials the local basis can be constructed using an arbitrary tangent vector $\omega_t$ without consequences (e.g. [#Duff17]), or using the following approach.
+- For anisotropic materials the tangent vector $\omega_t$ of the basis have to be continuous over the surface. A classic approach to construct a continuous tangent vector is to take the derivative of the position w.r.t the surface parameterization $(u,v)$: $$\omega_t = \text{normalize}\left(\frac{\partial p}{\partial u}\right) \qquad \text{or} \qquad \omega_t = \text{normalize}\left(\frac{\partial p}{\partial v}\right)$$ Additionally, the tangent vector can be rotated around the normal by an angle $\theta$ to change the anisotropic direction: $$\omega_t = \text{rotate}\left(\text{normalize}\left(\frac{\partial p}{\partial u}\right), \omega_g, \theta\right)$$ Several shape parameterizations and the derivatives of position and normal are derived in PBRT [#Pharr18] Chapter 3: Shapes. 
+
+
+Notation | Definition
+---|---
+$p$ | surface point
+$\omega_i$ | incident direction (towards the light)
+$\omega_o$ | outgoing direction (towards the eye)
+$\omega_m$ | microfacet normal 
+$\omega_g$ | geometric normal
+$\omega_t$ | tangent vector 
+$\omega_b$ | bitangent vector 
+$(\omega_g,\omega_t,\omega_b)$ | local orthonormal basis 
+<!-- $G_1(\alpha_x, \alpha_y, \omega_h, \omega)$ | Smith masking function -->
+<!-- $G_2(\alpha_x, \alpha_y, \omega_h, \omega_i, \omega_o)$ | Smith masking-shadowing function -->
+[Table [notations]: N.B. we chose to use the light natural propagation direction to fix the incident / outgoing convention.]
+
+	
+# C++ interface
+
+The following code snippet describes the common BSDF interface in a path tracer. 
+We will derive from it all BSDF described in this document. Its main methods are:
+- **eval** that returns the BSDF value of a given incident direction $\omega_i$ when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$.
+- **pdf** that returns the probability density of a given incident direction $\omega_i$, when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$.
+- **sample** that returns a sampled incident direction $\omega_i$ using the random triplet $rnd$, when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$. N.B Not all the BSDF sampling methods will consume the random triplet. In some cases, ones would prefer to send a sampler as a parameter, however this can lead to dimension mismatching with QMC sampling and inconsistent results. Hence we take the convention that random numbers are passed as argument even if they are not used. 
+
+```
+class Bsdf
+{
+public:
+    Bsdf(){}
+    Bsdf(std::shared_ptr<Texture> albedo) : m_albedo(albedo) {}
+    virtual ~Bsdf() {}
+    virtual Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const = 0;
+    virtual float pdf( const Vector& wi, const Vector& wo, const vec2& uv ) const = 0;
+    virtual Vector sample( const vec3& rnd, const Vector& wo, const vec2& uv ) const = 0;
+    std::shared_ptr<Texture> m_albedo;
+    BsdfType m_type;
+};
+```
+We assume there exists a `Texture` class which implements the operator: 
+```
+virtual Color operator() ( const vec2& uv ) const = 0;
+```
+to access surface properties such as albedo, roughness, anisotropy, etc at the specified coordinates $(u,v)$. `BsdfType` enumerates the differents combinations of BSDF lobes that can be used. This is useful to define boolean test functions to retrieve bsdf properties.
+```
+enum BsdfType
+{
+    GLOSSYREFLECTION     = (1 << 0),
+    GLOSSYTRANSMISSION   = (1 << 1),
+    DIFFUSEREFLECTION    = (1 << 2),
+    DIFFUSETRANSMISSION  = (1 << 3),
+    SPECULARREFLECTION   = (1 << 4),
+    SPECULARTRANSMISSION = (1 << 5),
+    ANISOTROPIC          = (1 << 6),
+    GLOSSY               = GLOSSYREFLECTION | GLOSSYTRANSMISSION,
+    DIFFUSE              = DIFFUSEREFLECTION | DIFFUSETRANSMISSION,
+    SPECULAR             = SPECULARREFLECTION | SPECULARTRANSMISSION,
+    TRANSMISSIVE         = GLOSSYTRANSMISSION | DIFFUSETRANSMISSION | SPECULARTRANSMISSION,
+    REFLECTIVE           = GLOSSYREFLECTION | DIFFUSEREFLECTION | SPECULARREFLECTION,
+}; 
+
+class Bsdf
+{
+public:
+	
+	...
+	
+	bool hasGlossy() const { return (m_type & GLOSSY) != 0; }
+    bool hasDiffuse() const { return (m_type & DIFFUSE) != 0; }
+    bool hasSpecular() const { return (m_type & SPECULAR) != 0; }
+    bool isPhase() const { return m_type != 0 && (m_type & ~PHASE) == 0; }
+    bool isPureGlossy() const { return m_type != 0 && (m_type & ~GLOSSY) == 0; }
+    bool isPureSpecular() const { return m_type != 0 && (m_type & ~SPECULAR) == 0; }
+    bool isPureDiffuse() const { return m_type != 0 && (m_type & ~DIFFUSE) == 0; }
+    bool isTransmissive() const { return (m_type & TRANSMISSIVE) != 0; }
+    bool isAnisotropic() const { return (m_type & ANISOTROPIC) != 0; }
+};
+``` 
+One last method to add is a test function to ensure that the BSDF is normalized, which is *über* useful when implementing BSDF models. This test is called the *white furnace test*, see [#Heitz14a] Section 3.5 for further details.
+```
+
+class Bsdf
+{
+public:
+    virtual void whiteFurnaceTest() const = 0;
+}
+```
+
+# Lambert model
+
+The first of the 3-models-to-start-with is the Lambert model which assumes the object surface is perfectly flat and that the light is equally reflected in all directions. The amount of reflected light is constant over the hemisphere and is independant of the eye direction:   
+
+\begin{equation}
+	\rho(\omega_i, \omega_o) = \frac{k}{\pi}
+\end{equation}
+
+Here $k$ is the surface albedo at the position $p$. The amount of light reflected towards a direction $\omega_o$ from a surface point $p$ writes:
+
+\begin{equation}
+	L_r(p, \omega_o) = \int_\Omega L_i(p, \omega_i) \rho(\omega_i, \omega_o) \cos \theta_i \mathrm{d}\omega_i
+\end{equation}
+
+Estimating this integral requires sampling directions in the hemisphere around $p$. The integrand is weighted by a cosine term, and good importance sampling is achieved when the sampling distribution is proportional to the integrand. Hence, we can use a cosine-weighted distribution to sample direction with $\text{pdf} \propto \cos \theta_i$. The following code samples a cosine-weighted distribution of directions in the hemisphere given two uniform numbers.
+
+```
+Vector SampleCosineHemisphere( const float u1, const float u2 )
+{
+    float phi = 2.f * (float) M_PI * u1;
+    float cos_theta = std::sqrt(u2);
+    float sin_theta = std::sqrt(1.f - std::min(1.f, cos_theta * cos_theta));
+    return Vector(std::cos(phi) * sin_theta, std::sin(phi) * sin_theta, cos_theta);
+}
+```
+Finally the code for the Lambertian BSDF model is:
+```
+class BsdfLambert : public Bsdf
+{
+public:
+    BsdfLambert(std::shared_ptr<Texture> albedo) : Bsdf(albedo), m_type(DIFFUSEREFLECTION) {}
+    
+    Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const
+    {
+        return (*m_albedo)(uv) * INV_PI;
+    }
+    
+    float pdf( const Vector& wi, const Vector& wo, const vec2& uv ) const
+    {
+        return std::max(0.f, wi.z) * INV_PI;
+    }
+
+    Vector sample( const vec3& rnd, const Vector& wo, const vec2& uv )
+    {   
+        return SampleCosineHemisphere(rnd.x, rnd.y);
+    }
+};
+```
+This models results in a matt finish with a slight falloff darkening edges. However, there is no control over the falloff with this model. This can be adressed by using a rough diffuse model such as the Oren-Nayar model [#Oren94] or the stochastic GGX based rough diffuse model by Eric heitz [#Heitz15] which supports anisotropy.
+
+Constant albedo - Environment lightning  | Textured albedo - Environment lightning 
+---|---
+![](data/test_bsdf_sphere_lambert.png)|![](data/test_bsdf_sphere_lambert_texture.png)
+
+# 100% reflective BSDF
+
+The second of the 3-models-to-start-with is a 100% reflective material. Although this model is not physically based, it gives pleasant results and is simple to implement. In addition it is a good introduction to understand the reflection law. This model assumes that the surface is perfectly flat, and the light is reflected in a unique direction symmetric w.r.t the normal of the surface. The reflection ray can be computed using the *Snell-Descartes reflection law*:
+
+\begin{equation}
+	\omega_i = 2 \langle \omega_g, \omega_o \rangle \omega_g - \omega_o
+\end{equation}
+
+If the geometric normal is aligned with the Z axis, $\omega_g = \left(0,0,1\right)$, and the eye vector $\omega_o$ is pointing outwards, the reflection simplifies to:
+
+\begin{equation}
+	\omega_i = \left( -\omega_o.x, -\omega_o.y, \omega_o.z \right)
+\end{equation}
+
+We can implement both as utility functions in the code:
+
+```
+// arbitrary reflection vector w
+static Vector Reflect(const Vector& wo, const Vector& w)
+{
+    return normalize(2.f * dot(wo, w) * w - wo);
+}
+
+// assumes w = Vector(0,0,1)
+static Vector Reflect(const Vector& wo)
+{
+    return Vector(-wo.x, -wo.y, wo.z);
+}
+
+```
+
+![Geometric configuration TODO: remake image](https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Reflexion_fr.png/300px-Reflexion_fr.png)
+
+The BSDF value is always 1, $\rho(\omega_i, \omega_o) = 1$. The associated distribution is a Dirac and the pdf of a sampled direction is also 1, since for a given outgoing direction a unique incident direction exists. The **pdf** method should return 1 when the directions $\omega_i$ and $\omega_o$ follow the constraints of reflection, 0 otherwise. A last utility function is needed here:
+```
+static bool CheckRefraction(const Vector& wi, const Vector& wo)
+{
+	// TODO explain
+    return std::abs(wi.z*wo.z - wi.x*wo.x - wi.y*wo.y - 1.0f) < 1e-4f;
+}
+```
+The classic path tracing algorithm performs an integral over the hemisphere / shape of the BSDF. For that reason the path throughput is multiplied with an extra cosine term in the main loop (see update throughput in the code below).
+```
+Ray ray = sample_ray(pixel);
+Color throughput = White(), color = Black();
+for(int length = 0;;++length)
+{
+	Hit hit;
+	if( intersect(primitives, ray, hit) )
+	{	
+		// compute direct illumination on p
+		color += throughput * direct(hit.p, hit.n);
+		
+		// local basis
+		Frame frame(hit.n);
+		Vector wo = frame.ToLocal(-ray.d());
+
+		// sample BSDF direction 
+		Vector wi = primitives[hit.id]->bsdf->sample(sampler.get3D(), wo, hit.uv);
+		float pdf = primitives[hit.id]->bsdf->pdf(wi, wo, hit.uv);
+		if( pdf <= 1e-6 ) 
+			break;
+		
+		// update throughput
+		Color f = primitives[hit.id]->bsdf->eval(wi, wo, hit.uv);
+		throughput = throughput * f * std::abs(wi.z) / pdf;
+
+		// update ray
+		ray = Ray(p, frame.ToWorld(wi));
+	}
+	else
+		break;
+
+	if( length > 20 ) 
+		break;
+}
+```
+In order not to create a particular case in the main loop, we prefer to divide by the cosine factor in the **eval** method, $\rho(\omega_i, \omega_o) = \frac{1}{\cos \theta_i}$. Finally the complete class writes:
+
+```
+class BsdfMirror : public Bsdf
+{
+public:
+    BsdfMirror(Texture* albedo) : Bsdf(albedo), m_type(SPECULARREFLECTION){}
+    
+    Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const
+    {
+        if(wi.z <= 0 || wo.z <= 0) return Black();
+        return (*m_albedo)(uv) / std:abs(wi.z);
+    }
+    
+    float pdf( const Vector& wi, const Vector& wo, const vec2& uv ) const
+    {
+        return CheckReflection(wi, wo));
+    }
+
+    Vector sample( const vec3& rnd, const Vector& wo, const vec2& uv ) const
+    {   
+        return Vector(-wo.x, -wo.y, wo.z);
+    }
+};
+```
+
+This models results in flat mirror finish. However, it does not capture the accurate behavior of smooth metals which is described in the conductors section.
+
+White albedo - Environment lightning  | Gold albedo - Environment lightning 
+---|---
+![](data/test_bsdf_sphere_mirror.png)|![](data/test_bsdf_sphere_mirror_tint.png)
+
+# 100% transmissive BSDF
+
+The second of the 3-models-to-start-with is a 100% transmissive material. Although this model is not physically based, it gives (not so) pleasant results but is simple to implement. In addition it is a good introduction to understand the refraction law. This model assumes that the surface is perfectly flat, and the light is refracted in a unique direction through the surface. The direction can be computed using the *Snell-Descartes refraction law*. For further details see Section 8.2.3 in [#Pharr18].   
+
+\begin{equation}
+\omega_i = 	\left\{
+            	\begin{array}{ll}
+              		\left( \eta \langle \omega_g, \omega_o \rangle - \cos \theta_i \right) \omega_g - \eta \omega_o \qquad \text{if $\omega_o$ is outside the object}\\
+              		\left( \eta \langle \omega_g, \omega_o \rangle + \cos \theta_i \right) \omega_g - \eta \omega_o \qquad \text{if $\omega_o$ is inside the object}
+            	\end{array}
+          	\right.
+\end{equation}
+
+Here $\eta$ is the ratio of refractive index of the media. If $\omega_o$ is outside the object $\eta = \frac{\eta_{int}}{\eta_{ext}}$, else $\eta = \frac{\eta_{ext}}{\eta_{int}}$. If the geometric normal is aligned with the Z axis, $\omega_g = \left(0,0,1\right)$ the refraction simplifies to:
+
+\begin{equation}
+\omega_i = 	\left\{
+            	\begin{array}{ll}
+              		\left( - \eta \omega_o.x, - \eta \omega_o.y, - \cos \theta_i \right) \qquad \text{if $\omega_o$ is outside the object}\\
+              		\left( - \eta \omega_o.x, - \eta \omega_o.y, + \cos \theta_i \right) \qquad \text{if $\omega_o$ is inside the object}
+            	\end{array}
+          	\right.
+\end{equation}
+
+We can implement both as utility functions in the code:
+```
+// compute the refracted cosine term using Snell's law
+static float ComputeThetaTransmitted(const float eta, const Vector &wo)
+{
+    float sinThetaISq = (1.0f - wo.z * wo.z) * eta * eta;                                
+    if (sinThetaISq >= 1.0f) return 0; // total internal reflection
+    return std::sqrt(std::max(1.0f - sinThetaISq, 0.0f));
+}
+
+// arbitrary refraction vector w
+static Vector Refract(const float eta, const Vector &wo, const Vector &w)
+{
+    float cosThetaI = ComputeThetaTransmitted(eta, wo);
+    return (eta * dot(wo, w) - std::copysign(cosThetaI, wo.z)) * w - eta * wo;
+}   
+
+// assumes w = vector(0,0,1)
+static Vector Refract(const float eta, const Vector &wo)  const
+{
+    float cosThetaI = ComputeThetaTransmitted(eta, wo);
+    return Vector(-wo.x * eta, -wo.y * eta, -std::copysign(cosThetaI, wo.z));
+}   
+```
+
+![Geometric configuration TODO: remake image](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Refraction_fr.png/300px-Refraction_fr.png)
+
+The BSDF value is always 1, $\rho(\omega_i, \omega_o) = 1$. The associated distribution is a Dirac and the pdf of a sampled direction is also 1, since for a given outgoing direction a unique incident direction exists. The **pdf** method should return 1 when the directions $\omega_i$ and $\omega_o$ follow the constraints of refraction, 0 otherwise. A last utility function is needed here:
+```
+static bool CheckRefraction(const Vector& wi, const Vector& wo)
+{
+	// TODO explain
+    float dotP = -wi.x*wo.x*eta - wi.y*wo.y*eta - std::copysign(cosThetaT, wo.z)*wi.z;
+    return std::abs(dotP - 1.0f) < 1e-4;
+}
+```
+For the same reason as for the 100% reflective material we divide by the cosine factor in the **eval** method, $\rho(\omega_i, \omega_o) = \frac{1}{\cos \theta_i}$. Finally the complete class writes:
+```
+class BsdfTransmission : public Bsdf
+{
+public:
+    BsdfTransmission(Texture* albedo, float intIOR = 1.5f, float extIOR = 1.f) : 
+    	Bsdf(albedo), m_type(SPECULARTRANSMISSION), m_intIOR(intIOR), m_extIOR(extIOR), 
+    	m_eta(m_extIOR / m_intIOR), m_invEta(1.f / m_eta)  
+    {}
+    
+    Color f( const Vector& wi, const Vector& wo, const vec2& uv ) const
+    {
+        if(wi.z * wo.z >= 0) return Black();
+        return (*m_albedo)(uv) / std::abs(wi.z);
+    }
+    
+    float pdf( const Vector& wi, const Vector& wo, const vec2& uv ) const
+    {
+        if(wi.z == 0 || wo.z == 0) return 0;
+        float eta = wo.z < 0.0f ? m_eta : m_invEta;
+    	float cosThetaI = ComputeThetaTransmitted(eta, wo);
+        return CheckRefraction(wi, wo, eta, cosThetaI);
+    }
+
+    Vector sample( const vec3 rnd, const Vector& wo, const vec2& uv ) const
+    {   
+        float eta = wo.z < 0.0f ? m_ior : m_invIor;
+        return Refract(eta, wo);
+    }
+
+    float m_intIOR, m_extIOR, m_eta, m_invEta;
+};
+
+```
+
+This models results in flat glass finish. However, it does not capture the accurate behavior of smooth glass which is described in the dielectric section.
+
+White albedo - Environment lightning  | Cyan albedo - Environment lightning 
+---|---
+![](data/test_bsdf_sphere_transmissive.png)|![](data/test_bsdf_sphere_transmissive_tint.png)
+
+# Fresnel
+
+We will not spend much time on Fresnel equations but a short introduction is needed before describing the next models.  
+First some references on Fresnel equations :
+- The excellent Seb Lagarde's memo on Fresnel equation with some useful references [#Lagarde13] [link](https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/) 
+- Naty Hoffman's 2019 MAM talk on Fresnel equations with plenty of details [#Hoffman19] [link](http://renderwonk.com/publications/mam2019/)
+In the real world, the reflectance of materials depends on the observer direction. Indeed we observe strong reflections on surfaces at grazing angle, and weak reflections at normal angle. 
+The Fresnel equations allow to compute the correct reflectance for a given angle $\theta_o$. Several versions of these equations exists exact or approximate. Unlike the reflectance of conductors, the reflectance of dielectric materials is achromatic. We can compute    
+
+## Fresnel reflectance
+
+TODO equations
+
+## Schlick's approximation
+
+TODO equations
+
+## Hoffman's approximation
+
+The idea of [Naty Hoffman's talk](http://renderwonk.com/publications/mam2019/naty_mam2019.pdf) is that Fresnel equations are only approximations, depending how the complex IOR have been computed. Using wrong appriximation may lead to worst results than using a tint and Schlick approximation. So going with the approximation is not a bad idea. However its error can be reduced with some modifications in the equation. An additionnal paramater $h=F(82°)$ is used to modulate the edge tint.  
+
+![](data/fresnel2019.png)
+
+# Conductor
+
+## Conductor Fresnel reflectance (with complex IOR) 
+
+|Copper|Gold|Iron| 
+|:---:|:---:|:---:|
+|![](data/test_bsdf_sphere_conductor_copper.png)|![](data/test_bsdf_sphere_conductor_gold.png)|![](data/test_bsdf_sphere_conductor_iron.png)|
+
+## Conductor Schlick's Fresnel approximation 
+
+Here is the result with Schlick's Fresnel approximation, a white halo appears on the edge and does not match the reference image.
+Copper | Difference with the reference
+:---:|:---:
+![](data/test_bsdf_sphere_conductor_tint_copper.png)|![](data/test_bsdf_sphere_conductor_tint_copper_difference.png)
+
+## Conductor Naty Hoffman's Fresnel approximation 
+
+Here is the result with Naty Hoffman's Fresnel approximation, it closely matches the reference image at the cost of minor additionnal computation.
+
+Copper | Difference with the reference
+:---:|:---:
+![](data/test_bsdf_sphere_conductor_tint_copper_edge_copper.png)|![](data/test_bsdf_sphere_conductor_tint_copper_edge_copper_difference.png)
+
+Another benefit of Hoffman's model is the ability to smoothly control the edge tint of the material.
+
+|Very artistic copper with cyan tinted edges|
+|:---:|
+|![](data/test_bsdf_sphere_conductor_tint_copper_edge_cyan.png)|
+
+# Dielectric
+
+Dielectric (IOR 1.5) | Difference with 100% transmissive model
+:---:|:---:
+![](data/test_bsdf_sphere_dielectric.png)|![](data/test_bsdf_sphere_transmissive_difference.png)
+
+# Plastic
+
+Red albedo | Cyan albedo
+:---:|:---:
+![](data/test_bsdf_sphere_plastic_red.png)|![](data/test_bsdf_sphere_plastic_cyan.png)
+
+# Microfacet model
+
+## Isotropic
+
+## Anisotropic
+
+# Rough diffuse
+
+|Rough diffuse with varying roughness and anisotropy|
+|:---:|
+|![](data/test_bsdf_sphere_rough_diffuse_anisotropic_kulla.png)|
+
+# Rough conductor
+
+|Rough conductor with varying roughness and anisotropy|
+|:---:|
+|![](data/test_bsdf_sphere_rough_conductor_anisotropic_kulla.png)|
+
+# Rough dielectric
+
+|Rough dielectric with varying roughness and anisotropy|
+|:---:|
+|![](data/test_bsdf_sphere_rough_dielectric_anisotropic_kulla.png)|
+
+# Rough plastic
+
+TODO
+
+# Multiple scattering 
+
+TODO
+
+# Diffuse transmission
+
+TODO
+
+# Beer-Lambert
+
+TODO
+
+# References
+
+[#Duff17]: **Building an Orthonormal Basis, Revisited**, Tom Duff, James Burgess, Per Christensen, Christophe Hery, Andrew Kensler, Max Liani, and Ryusuke Villemin, Journal of Computer Graphics Techniques (JCGT), 2017, [link](http://jcgt.org/published/0006/01/01/)
+
+[#Pharr18]: **Physically based rendering 3rd edition**, Matt Pharr, Wenzel Jakob, and Greg Humphreys, 3rd edition [link](http://www.pbr-book.org/)
+
+[#Heitz14a]: **Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs**, Eric Heitz, Journal of Computer Graphics Techniques (JCGT), 2014 [link](http://jcgt.org/published/0003/02/03/) 
+
+[#Heitz15]: **Implementing a Simple Anisotropic Rough Diffuse Material with Stochastic Evaluation**, Eric Heitz and Jonathan Dupuy, Technical report 2015, [link](https://drive.google.com/file/d/0BzvWIdpUpRx_M3ZmakxHYXZWaUk/view)
+
+[#Oren94]: **Generalization of Lambert’s Reflectance Model**, Michael Oren and Shree K. Nayar, SIGGRAPH, 1994
+
+
+<!-- Markdeep: -->
+<!-- <link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/latex.css?"> -->
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
