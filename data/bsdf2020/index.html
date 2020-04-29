@@ -2,7 +2,7 @@
 
 # Introduction
 
-This document cover some mathematical and implementation details for several bidirectionnal scattering distribution functions (BSDF) in a path tracer.
+This document cover some mathematical and implementation details for several bidirectional scattering distribution functions (BSDF) in a path tracer.
 It covers several state of the art models such as :
 	- Diffuse models 
 		* Lambert
@@ -59,7 +59,7 @@ class Bsdf
 {
 public:
     Bsdf(){}
-    Bsdf(std::shared_ptr<Texture> albedo) : m_albedo(albedo) {}
+    Bsdf(std::shared_ptr<Texture> albedo, BsdfType type = NULL) : m_albedo(albedo), m_type(type) {}
     virtual ~Bsdf() {}
     virtual Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const = 0;
     virtual float pdf( const Vector& wi, const Vector& wo, const vec2& uv ) const = 0;
@@ -107,7 +107,7 @@ public:
     bool isAnisotropic() const { return (m_type & ANISOTROPIC) != 0; }
 };
 ``` 
-One last method to add is a test function to ensure that the BSDF is normalized, which is *über* useful when implementing BSDF models. This test is called the *white furnace test*, see [#Heitz14a] Section 3.5 for further details.
+One last method to add is a test function to ensure that the BSDF is normalized, which is super useful when implementing BSDF models. This test is called the *white furnace test*, see [#Heitz14a] Section 3.5 for further details.
 ```
 
 class Bsdf
@@ -119,7 +119,9 @@ public:
 
 # Lambert model
 
-The first of the 3-models-to-start-with is the Lambert model which assumes the object surface is perfectly flat and that the light is equally reflected in all directions. The amount of reflected light is constant over the hemisphere and is independant of the eye direction:   
+> "First of the 3-models-to-start-with"
+
+The Lambert model assumes that the object surface is perfectly flat and that the light is equally reflected in all directions. The amount of reflected light is constant over the hemisphere and is independent of the eye direction:   
 
 \begin{equation}
 	\rho(\omega_i, \omega_o) = \frac{k}{\pi}
@@ -142,12 +144,12 @@ Vector SampleCosineHemisphere( const float u1, const float u2 )
     return Vector(std::cos(phi) * sin_theta, std::sin(phi) * sin_theta, cos_theta);
 }
 ```
-Finally the code for the Lambertian BSDF model is:
+Finally the code for the Lambert BSDF model is:
 ```
 class BsdfLambert : public Bsdf
 {
 public:
-    BsdfLambert(std::shared_ptr<Texture> albedo) : Bsdf(albedo), m_type(DIFFUSEREFLECTION) {}
+    BsdfLambert(std::shared_ptr<Texture> albedo) : Bsdf(albedo, DIFFUSEREFLECTION) {}
     
     Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const
     {
@@ -165,7 +167,7 @@ public:
     }
 };
 ```
-This models results in a matt finish with a slight falloff darkening edges. However, there is no control over the falloff with this model. This can be adressed by using a rough diffuse model such as the Oren-Nayar model [#Oren94] or the stochastic GGX based rough diffuse model by Eric heitz [#Heitz15] which supports anisotropy.
+This models results in a matte finish with a slight falloff that darken edges. However, there is no control over the falloff with this model and it does not reproduce accurately the behavior of matte materials which tends to look more flat. This can be addressed by using a rough diffuse model such as the Oren-Nayar model [#Oren94] or the stochastic GGX based rough diffuse model by Eric heitz [#Heitz15] which supports anisotropy.
 
 Constant albedo - Environment lightning  | Textured albedo - Environment lightning 
 ---|---
@@ -188,7 +190,7 @@ If the geometric normal is aligned with the Z axis, $\omega_g = \left(0,0,1\righ
 We can implement both as utility functions in the code:
 
 ```
-// arbitrary reflection vector w
+// arbitrary normal vector w
 static Vector Reflect(const Vector& wo, const Vector& w)
 {
     return normalize(2.f * dot(wo, w) * w - wo);
@@ -251,10 +253,10 @@ for(int length = 0;;++length)
 In order not to create a particular case in the main loop, we prefer to divide by the cosine factor in the **eval** method, $\rho(\omega_i, \omega_o) = \frac{1}{\cos \theta_i}$. Finally the complete class writes:
 
 ```
-class BsdfMirror : public Bsdf
+class BsdfReflective : public Bsdf
 {
 public:
-    BsdfMirror(Texture* albedo) : Bsdf(albedo), m_type(SPECULARREFLECTION){}
+    BsdfReflective(std::shared_ptr<Texture> albedo) : Bsdf(albedo, SPECULARREFLECTION){}
     
     Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const
     {
@@ -304,7 +306,18 @@ Here $\eta$ is the ratio of refractive index of the media. If $\omega_o$ is outs
           	\right.
 \end{equation}
 
-We can implement both as utility functions in the code:
+The angle of refraction $\theta_i$ can be computed using Snell's law and trigonometric identities.
+
+\begin{equation} 
+\begin{split} 
+    & \eta_i \sin \theta_i = \eta_o \sin \theta_o \qquad \text{(Snell's law)} \\
+    \iff& \sin \theta_i = \frac{\eta_o}{\eta_i} \sin \theta_o \\
+    \iff& \cos \theta_i = \sqrt{1 - \left(\frac{\eta_o}{\eta_i} \sin \theta_o\right)^2} \qquad \text{using} \qquad \cos^2\theta = 1 - \sin^2\theta \\
+    \iff& \cos \theta_i = \sqrt{1 - \eta^2 \sin^2 \theta_o} \\
+    \iff& \cos \theta_i = \sqrt{1 - \eta^2 (1 - \cos^2 \theta_o)} \qquad \text{using} \qquad \sin^2\theta = 1 - \cos^2\theta
+\end{split} 
+\end{equation} 
+We have now expressed $\theta_i$ function of $\theta_o$, we can implement a small utility function that compute $\theta_i$. N.B. In the unit hemisphere with normal aligned with the Z axis, the cosine term of a direction (inner product with the normal) is the Z component of the vector.
 ```
 // compute the refracted cosine term using Snell's law
 static float ComputeThetaTransmitted(const float eta, const Vector &wo)
@@ -313,8 +326,11 @@ static float ComputeThetaTransmitted(const float eta, const Vector &wo)
     if (sinThetaISq >= 1.0f) return 0; // total internal reflection
     return std::sqrt(std::max(1.0f - sinThetaISq, 0.0f));
 }
+```
 
-// arbitrary refraction vector w
+We are finally able to compute refracted directions from the outgoing direction, the normal and the ratio of refractive indices.
+```
+// arbitrary normal vector w
 static Vector Refract(const float eta, const Vector &wo, const Vector &w)
 {
     float cosThetaI = ComputeThetaTransmitted(eta, wo);
@@ -342,12 +358,15 @@ static bool CheckRefraction(const Vector& wi, const Vector& wo)
 ```
 For the same reason as for the 100% reflective material we divide by the cosine factor in the **eval** method, $\rho(\omega_i, \omega_o) = \frac{1}{\cos \theta_i}$. Finally the complete class writes:
 ```
-class BsdfTransmission : public Bsdf
+class BsdfTransmissive : public Bsdf
 {
 public:
-    BsdfTransmission(Texture* albedo, float intIOR = 1.5f, float extIOR = 1.f) : 
-    	Bsdf(albedo), m_type(SPECULARTRANSMISSION), m_intIOR(intIOR), m_extIOR(extIOR), 
-    	m_eta(m_extIOR / m_intIOR), m_invEta(1.f / m_eta)  
+    BsdfTransmissive(std::shared_ptr<Texture> albedo, float intIOR = 1.5f, float extIOR = 1.f) : 
+    	Bsdf(albedo, SPECULARTRANSMISSION), 
+        m_intIOR(intIOR), 
+        m_extIOR(extIOR), 
+    	m_eta(m_extIOR / m_intIOR), 
+        m_invEta(1.f / m_eta)  
     {}
     
     Color f( const Vector& wi, const Vector& wo, const vec2& uv ) const
@@ -366,7 +385,7 @@ public:
 
     Vector sample( const vec3 rnd, const Vector& wo, const vec2& uv ) const
     {   
-        float eta = wo.z < 0.0f ? m_ior : m_invIor;
+        float eta = wo.z < 0.0f ? m_eta : m_invEta;
         return Refract(eta, wo);
     }
 
@@ -375,32 +394,53 @@ public:
 
 ```
 
-This models results in flat glass finish. However, it does not capture the accurate behavior of smooth glass which is described in the dielectric section.
+This models results in a flat transparent finish. However, it does not capture the accurate behavior of smooth dielectrics which is described in the dielectric section.
 
-White albedo - Environment lightning  | Cyan albedo - Environment lightning 
+White albedo - IOR 1.5 | Cyan albedo - IOR 1.5 
 ---|---
 ![](data/test_bsdf_sphere_transmissive.png)|![](data/test_bsdf_sphere_transmissive_tint.png)
 
+|||||
+|---|---|---|---|
+| ![](data/test_bsdf_sphere_transmissive1.png) | ![](data/test_bsdf_sphere_transmissive1.02.png) | ![](data/test_bsdf_sphere_transmissive1.04.png) | ![](data/test_bsdf_sphere_transmissive1.06.png) |
+| ![](data/test_bsdf_sphere_transmissive1.08.png) | ![](data/test_bsdf_sphere_transmissive1.1.png) | ![](data/test_bsdf_sphere_transmissive1.12.png) | ![](data/test_bsdf_sphere_transmissive1.14.png) 
+| ![](data/test_bsdf_sphere_transmissive1.16.png) |![](data/test_bsdf_sphere_transmissive1.18.png) | ![](data/test_bsdf_sphere_transmissive1.2.png) | ![](data/test_bsdf_sphere_transmissive1.3.png) |
+| ![](data/test_bsdf_sphere_transmissive1.4.png) | ![](data/test_bsdf_sphere_transmissive1.5.png) | ![](data/test_bsdf_sphere_transmissive1.6.png) | ![](data/test_bsdf_sphere_transmissive1.7.png) |
+| ![](data/test_bsdf_sphere_transmissive1.8.png) | ![](data/test_bsdf_sphere_transmissive1.9.png) |![](data/test_bsdf_sphere_transmissive2.png) | ![](data/test_bsdf_sphere_transmissive2.42.png) |
+[Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).]
+
+| Material | IOR |
+|---|---|
+|Air|1.000293 (commonly used value is 1)|
+|Water|1.333 |
+|Glass|1.52 (commonly used value is 1.5)|
+|Diamond|2.417|
+[Some values from Wikipedia's [List of refractive indices](https://en.wikipedia.org/wiki/List_of_refractive_indices)]
+
+
 # Fresnel
 
+In the real world, the amount of transmitted and reflected light light vary with the angle of incidence of the eye direction. Fresnel equations accurately evaluate the reflectance of a material for a given incident angle.
 We will not spend much time on Fresnel equations but a short introduction is needed before describing the next models.  
 First some references on Fresnel equations :
 - The excellent Seb Lagarde's memo on Fresnel equation with some useful references [#Lagarde13] [link](https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/) 
 - Naty Hoffman's 2019 MAM talk on Fresnel equations with plenty of details [#Hoffman19] [link](http://renderwonk.com/publications/mam2019/)
-In the real world, the reflectance of materials depends on the observer direction. Indeed we observe strong reflections on surfaces at grazing angle, and weak reflections at normal angle. 
-The Fresnel equations allow to compute the correct reflectance for a given angle $\theta_o$. Several versions of these equations exists exact or approximate. Unlike the reflectance of conductors, the reflectance of dielectric materials is achromatic. We can compute    
 
 ## Fresnel reflectance
 
+This is a tough topic and we invite the reader to consult Seb Lagarde's memo and the mentioned sources for further details.
+Unlike the reflectance of conductors, the reflectance of dielectric materials is achromatic.
+
 TODO equations
 
-## Schlick's approximation
+## Schlick approximation
 
-TODO equations
+![](data/schlick.png)
 
-## Hoffman's approximation
+## Lazanyi - Schlick approximation
 
-The idea of [Naty Hoffman's talk](http://renderwonk.com/publications/mam2019/naty_mam2019.pdf) is that Fresnel equations are only approximations, depending how the complex IOR have been computed. Using wrong appriximation may lead to worst results than using a tint and Schlick approximation. So going with the approximation is not a bad idea. However its error can be reduced with some modifications in the equation. An additionnal paramater $h=F(82°)$ is used to modulate the edge tint.  
+In his 2019 MAM talk, Naty Hoffman propose to use [#Lazanyi05] as a better approximation for the reflectance of materials. 
+The idea of [Naty Hoffman's talk](http://renderwonk.com/publications/mam2019/naty_mam2019.pdf) is that Fresnel equations are only approximations, depending how the complex IOR have been computed. Using wrong approximation may lead to worst results than using a tint and Schlick approximation. So going with the approximation is not a bad idea. However its error can be reduced with some modifications in the equation. An additional parameter $h=F(82°)$ is used to modulate the edge tint.  
 
 ![](data/fresnel2019.png)
 
@@ -412,16 +452,16 @@ The idea of [Naty Hoffman's talk](http://renderwonk.com/publications/mam2019/nat
 |:---:|:---:|:---:|
 |![](data/test_bsdf_sphere_conductor_copper.png)|![](data/test_bsdf_sphere_conductor_gold.png)|![](data/test_bsdf_sphere_conductor_iron.png)|
 
-## Conductor Schlick's Fresnel approximation 
+## Conductor Schlick Fresnel approximation 
 
 Here is the result with Schlick's Fresnel approximation, a white halo appears on the edge and does not match the reference image.
 Copper | Difference with the reference
 :---:|:---:
 ![](data/test_bsdf_sphere_conductor_tint_copper.png)|![](data/test_bsdf_sphere_conductor_tint_copper_difference.png)
 
-## Conductor Naty Hoffman's Fresnel approximation 
+## Conductor Lazanyi - Schlick Fresnel approximation 
 
-Here is the result with Naty Hoffman's Fresnel approximation, it closely matches the reference image at the cost of minor additionnal computation.
+Here is the result with Lazanyi - Schlick Fresnel approximation, it closely matches the reference image at the cost of minor additionnal computation.
 
 Copper | Difference with the reference
 :---:|:---:
@@ -439,13 +479,28 @@ Dielectric (IOR 1.5) | Difference with 100% transmissive model
 :---:|:---:
 ![](data/test_bsdf_sphere_dielectric.png)|![](data/test_bsdf_sphere_transmissive_difference.png)
 
+|||||
+|---|---|---|---|
+| ![](data/test_bsdf_sphere_dielectric1.png) | ![](data/test_bsdf_sphere_dielectric1.02.png) | ![](data/test_bsdf_sphere_dielectric1.04.png) | ![](data/test_bsdf_sphere_dielectric1.06.png) |
+| ![](data/test_bsdf_sphere_dielectric1.08.png) | ![](data/test_bsdf_sphere_dielectric1.1.png) | ![](data/test_bsdf_sphere_dielectric1.12.png) | ![](data/test_bsdf_sphere_dielectric1.14.png) 
+| ![](data/test_bsdf_sphere_dielectric1.16.png) |![](data/test_bsdf_sphere_dielectric1.18.png) | ![](data/test_bsdf_sphere_dielectric1.2.png) | ![](data/test_bsdf_sphere_dielectric1.3.png) |
+| ![](data/test_bsdf_sphere_dielectric1.4.png) | ![](data/test_bsdf_sphere_dielectric1.5.png) | ![](data/test_bsdf_sphere_dielectric1.6.png) | ![](data/test_bsdf_sphere_dielectric1.7.png) |
+| ![](data/test_bsdf_sphere_dielectric1.8.png) | ![](data/test_bsdf_sphere_dielectric1.9.png) |![](data/test_bsdf_sphere_dielectric2.png) | ![](data/test_bsdf_sphere_dielectric2.42.png) |
+[Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).]
+
 # Plastic
 
 Red albedo | Cyan albedo
 :---:|:---:
 ![](data/test_bsdf_sphere_plastic_red.png)|![](data/test_bsdf_sphere_plastic_cyan.png)
 
+# Diffuse transmission
+
+TODO
+
 # Microfacet model
+
+<!-- Microfacet models have been developped to model the fact that the microsurface of an object i -->
 
 ## Isotropic
 
@@ -477,26 +532,31 @@ TODO
 
 TODO
 
-# Diffuse transmission
+# Subsurface scattering 
 
 TODO
 
-# Beer-Lambert
+# Oren-Nayar
 
 TODO
+
+# Production principled BSDF
+
+> "One model to rule them all" 
 
 # References
 
-[#Duff17]: **Building an Orthonormal Basis, Revisited**, Tom Duff, James Burgess, Per Christensen, Christophe Hery, Andrew Kensler, Max Liani, and Ryusuke Villemin, Journal of Computer Graphics Techniques (JCGT), 2017, [link](http://jcgt.org/published/0006/01/01/)
+[#Duff17]:      **Building an Orthonormal Basis, Revisited**, Tom Duff, James Burgess, Per Christensen, Christophe Hery, Andrew Kensler, Max Liani, and Ryusuke Villemin, Journal of Computer Graphics Techniques (JCGT), 2017, [link](http://jcgt.org/published/0006/01/01/)
 
-[#Pharr18]: **Physically based rendering 3rd edition**, Matt Pharr, Wenzel Jakob, and Greg Humphreys, 3rd edition [link](http://www.pbr-book.org/)
+[#Pharr18]:     **Physically based rendering 3rd edition**, Matt Pharr, Wenzel Jakob, and Greg Humphreys, 3rd edition [link](http://www.pbr-book.org/)
 
-[#Heitz14a]: **Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs**, Eric Heitz, Journal of Computer Graphics Techniques (JCGT), 2014 [link](http://jcgt.org/published/0003/02/03/) 
+[#Heitz14a]:    **Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs**, Eric Heitz, Journal of Computer Graphics Techniques (JCGT), 2014 [link](http://jcgt.org/published/0003/02/03/) 
 
-[#Heitz15]: **Implementing a Simple Anisotropic Rough Diffuse Material with Stochastic Evaluation**, Eric Heitz and Jonathan Dupuy, Technical report 2015, [link](https://drive.google.com/file/d/0BzvWIdpUpRx_M3ZmakxHYXZWaUk/view)
+[#Heitz15]:     **Implementing a Simple Anisotropic Rough Diffuse Material with Stochastic Evaluation**, Eric Heitz and Jonathan Dupuy, Technical report 2015, [link](https://drive.google.com/file/d/0BzvWIdpUpRx_M3ZmakxHYXZWaUk/view)
 
-[#Oren94]: **Generalization of Lambert’s Reflectance Model**, Michael Oren and Shree K. Nayar, SIGGRAPH, 1994
+[#Oren94]:      **Generalization of Lambert’s Reflectance Model**, Michael Oren and Shree K. Nayar, SIGGRAPH, 1994
 
+[#Lazanyi05]:   **Fresnel term approximations for metals**, Lazanyi I. and Szirmay-Kalos L., In The 13th International Conference in Central Europe on Computer Graphics, 2005
 
 <!-- Markdeep: -->
 <!-- <link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/latex.css?"> -->
