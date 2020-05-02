@@ -494,9 +494,6 @@ Red albedo | Cyan albedo
 :---:|:---:
 ![](data/test_bsdf_sphere_plastic_red.png)|![](data/test_bsdf_sphere_plastic_cyan.png)
 
-# Diffuse transmission
-
-TODO
 
 # Microfacet model
 
@@ -506,19 +503,27 @@ TODO
 
 ## Anisotropic
 
-# Rough diffuse
+# Rough diffuse - Oren Nayar
+
+||||||
+|---|---|---|---|---|
+|![](data/test_bsdf_sphere_oren_nayar0.png)|![](data/test_bsdf_sphere_oren_nayar1.png)|![](data/test_bsdf_sphere_oren_nayar2.png)|![](data/test_bsdf_sphere_oren_nayar3.png)|![](data/test_bsdf_sphere_oren_nayar4.png)|
+|![](data/test_bsdf_sphere_oren_nayar5.png)|![](data/test_bsdf_sphere_oren_nayar6.png)|![](data/test_bsdf_sphere_oren_nayar7.png)|![](data/test_bsdf_sphere_oren_nayar8.png)|![](data/test_bsdf_sphere_oren_nayar9.png)|
+
+
+# Rough anisotropic diffuse - Stochastic GGX
 
 |Rough diffuse with varying roughness and anisotropy|
 |:---:|
 |![](data/test_bsdf_sphere_rough_diffuse_anisotropic_kulla.png)|
 
-# Rough conductor
+# Rough anisotropic conductor
 
 |Rough conductor with varying roughness and anisotropy|
 |:---:|
 |![](data/test_bsdf_sphere_rough_conductor_anisotropic_kulla.png)|
 
-# Rough dielectric
+# Rough anisotropic dielectric
 
 |Rough dielectric with varying roughness and anisotropy|
 |:---:|
@@ -530,13 +535,19 @@ TODO
 
 # Multiple scattering 
 
-TODO
+Classic scattering models account only once bounce on the surface, although in the real world we can observe inter-reflections between microfacets. The main idea behind multiple scattering models is to add an energy compensation term that account for the lost energy. The scattering model becomes :
+
+\begin{equation}
+    \rho(\omega_o, \omega_i) = \rho_{ss}(\omega_o, \omega_i) + \rho_{ms}(\omega_o, \omega_i) 
+\end{equation}
+
+We won't derive existing multiple scattering models here but instead refer to the original articles that are recent and well-explained:
+- the approach from Eric Heitz et al. [#Heitz16] which performs a stochastic random walk on the microsurface. 
+- the approach from Christopher Kulla and Alejandro Conty [#Kulla17]
+- the approach from Emmanuel Turquin [#Turquin19]
+N.B. Turquin's method has been adopted in Unity HDRP and Google's Filament.
 
 # Subsurface scattering 
-
-TODO
-
-# Oren-Nayar
 
 TODO
 
