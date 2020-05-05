@@ -48,7 +48,22 @@ $(\omega_g,\omega_t,\omega_b)$ | local orthonormal basis
 	
 # C++ interface
 
-The following code snippet describes the common BSDF interface in a path tracer. 
+In a path tracer, we must be able to evaluate the BSDF at any point $p$ and for any couple of incident and outgoing direction. We compute the amount of scattered light from a point $p$ to an outgoing direction by integrating a set of incident directions . Hence we need a method to sample directions    
+
+<!-- 
+0/ il faut pouvoir evaluer la brdf pour les directions camera, source, et qu'une parametrisation de la surface est necessaire pour les surfaces anisotropiques, et pour les perturbations de la normale,
+
+1/ il faut integrer la luminance sur un ensemble de directions incidentes, donc pour sampler une direction vers la source, il faut une methode wsource= sample( wcamera )
+
+2/ il faut aussi pouvoir evaluer la pdf d'une direction quelconque pour utiliser du mis pour l'eclairage direct et choisir dans quelle unite evaluer cette densite : sur les aires, sur les directions...
+
+3/ verifier que l'implem est coherente : white furnace, c'est pour verifier la conservation d'energie, mais il faut aussi verifier que la brdf est reciproque, et que les fonctions sample() et pdf() sont coherentes, et permettent par exemple de calculer l'albedo de la brdf pour une direction camera.
+
+4/ dans la lignee des fonctions de tests, tu peux aussi ajouter une fonction qui calcule une image d'un lobe pour une direction camera.
+ -->
+
+The following code snippet describes the common BSDF interface in a path tracer.
+
 We will derive from it all BSDF described in this document. Its main methods are:
 - **eval** that returns the BSDF value of a given incident direction $\omega_i$ when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$.
 - **pdf** that returns the probability density of a given incident direction $\omega_i$, when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$.
