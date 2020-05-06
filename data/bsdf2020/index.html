@@ -415,14 +415,17 @@ White albedo - IOR 1.5 | Cyan albedo - IOR 1.5
 ---|---
 ![](data/test_bsdf_sphere_transmissive.png)|![](data/test_bsdf_sphere_transmissive_tint.png)
 
-|||||
-|---|---|---|---|
-| ![](data/test_bsdf_sphere_transmissive1.png) | ![](data/test_bsdf_sphere_transmissive1.02.png) | ![](data/test_bsdf_sphere_transmissive1.04.png) | ![](data/test_bsdf_sphere_transmissive1.06.png) |
-| ![](data/test_bsdf_sphere_transmissive1.08.png) | ![](data/test_bsdf_sphere_transmissive1.1.png) | ![](data/test_bsdf_sphere_transmissive1.12.png) | ![](data/test_bsdf_sphere_transmissive1.14.png) 
-| ![](data/test_bsdf_sphere_transmissive1.16.png) |![](data/test_bsdf_sphere_transmissive1.18.png) | ![](data/test_bsdf_sphere_transmissive1.2.png) | ![](data/test_bsdf_sphere_transmissive1.3.png) |
-| ![](data/test_bsdf_sphere_transmissive1.4.png) | ![](data/test_bsdf_sphere_transmissive1.5.png) | ![](data/test_bsdf_sphere_transmissive1.6.png) | ![](data/test_bsdf_sphere_transmissive1.7.png) |
-| ![](data/test_bsdf_sphere_transmissive1.8.png) | ![](data/test_bsdf_sphere_transmissive1.9.png) |![](data/test_bsdf_sphere_transmissive2.png) | ![](data/test_bsdf_sphere_transmissive2.42.png) |
-[Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).]
+![Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).](data/test_bsdf_sphere_transmissive_ior.jpg)
+
+<!-- 
+convert +append test_bsdf_sphere_transmissive1.png test_bsdf_sphere_transmissive1.02.png test_bsdf_sphere_transmissive1.04.png test_bsdf_sphere_transmissive1.06.png test_bsdf_sphere_transmissive1.08.png test_bsdf_sphere_transmissive1.1.png test_bsdf_sphere_transmissive1.12.png test_bsdf_sphere_transmissive1.14.png test_bsdf_sphere_transmissive1.16.png test_bsdf_sphere_transmissive1.18.png test_bsdf_sphere_transmissive1-1.2.png 
+
+convert +append test_bsdf_sphere_transmissive1.2.png test_bsdf_sphere_transmissive1.3.png test_bsdf_sphere_transmissive1.4.png test_bsdf_sphere_transmissive1.5.png test_bsdf_sphere_transmissive1.6.png test_bsdf_sphere_transmissive1.7.png test_bsdf_sphere_transmissive1.8.png test_bsdf_sphere_transmissive1.9.png test_bsdf_sphere_transmissive2.png test_bsdf_sphere_transmissive2.42.png test_bsdf_sphere_transmissive1.2-2.42.png 
+
+convert -append test_bsdf_sphere_transmissive1-1.2.png test_bsdf_sphere_transmissive1.2-2.42.png test_bsdf_sphere_transmissive_ior.png
+
+convert -format jpg test_bsdf_sphere_transmissive_ior.png test_bsdf_sphere_transmissive_ior.jpg 
+-->
 
 | Material | IOR |
 |---|---|
@@ -431,7 +434,6 @@ White albedo - IOR 1.5 | Cyan albedo - IOR 1.5
 |Glass|1.52 (commonly used value is 1.5)|
 |Diamond|2.417|
 [Some values from Wikipedia's [List of refractive indices](https://en.wikipedia.org/wiki/List_of_refractive_indices)]
-
 
 # Fresnel
 
@@ -477,31 +479,40 @@ Copper | Difference with the reference
 ## Conductor Lazanyi - Schlick Fresnel approximation 
 
 Here is the result with Lazanyi - Schlick Fresnel approximation, it closely matches the reference image at the cost of minor additionnal computation.
-
+<!-- 
 Copper | Difference with the reference
 :---:|:---:
-![](data/test_bsdf_sphere_conductor_tint_copper_edge_copper.png)|![](data/test_bsdf_sphere_conductor_tint_copper_edge_copper_difference.png)
+![](data/test_bsdf_sphere_conductor_tint_copper_edge_copper.png)|![](data/test_bsdf_sphere_conductor_tint_copper_edge_copper_difference.png) -->
 
-Another benefit of Hoffman's model is the ability to smoothly control the edge tint of the material.
+![Copper](data/test_bsdf_sphere_conductor_tint_copper_edge_copper.png width=95%) ![Difference with the reference](data/test_bsdf_sphere_conductor_tint_copper_edge_copper_difference.png width=91%)
 
-|Very artistic copper with cyan tinted edges|
-|:---:|
-|![](data/test_bsdf_sphere_conductor_tint_copper_edge_cyan.png)|
+Another benefit of this model is the ability to smoothly control the edge tint of the material.
+
+![Copper with cyan tinted edges](data/test_bsdf_sphere_conductor_tint_copper_edge_cyan.png width=50%)
 
 # Dielectric
 
-Dielectric (IOR 1.5) | Difference with 100% transmissive model
+Smooth dielectric (IOR 1.5) | Difference with 100% transmissive model
 :---:|:---:
 ![](data/test_bsdf_sphere_dielectric.png)|![](data/test_bsdf_sphere_transmissive_difference.png)
 
-|||||
-|---|---|---|---|
-| ![](data/test_bsdf_sphere_dielectric1.png) | ![](data/test_bsdf_sphere_dielectric1.02.png) | ![](data/test_bsdf_sphere_dielectric1.04.png) | ![](data/test_bsdf_sphere_dielectric1.06.png) |
-| ![](data/test_bsdf_sphere_dielectric1.08.png) | ![](data/test_bsdf_sphere_dielectric1.1.png) | ![](data/test_bsdf_sphere_dielectric1.12.png) | ![](data/test_bsdf_sphere_dielectric1.14.png) 
-| ![](data/test_bsdf_sphere_dielectric1.16.png) |![](data/test_bsdf_sphere_dielectric1.18.png) | ![](data/test_bsdf_sphere_dielectric1.2.png) | ![](data/test_bsdf_sphere_dielectric1.3.png) |
-| ![](data/test_bsdf_sphere_dielectric1.4.png) | ![](data/test_bsdf_sphere_dielectric1.5.png) | ![](data/test_bsdf_sphere_dielectric1.6.png) | ![](data/test_bsdf_sphere_dielectric1.7.png) |
-| ![](data/test_bsdf_sphere_dielectric1.8.png) | ![](data/test_bsdf_sphere_dielectric1.9.png) |![](data/test_bsdf_sphere_dielectric2.png) | ![](data/test_bsdf_sphere_dielectric2.42.png) |
-[Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).]
+![Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).](data/test_bsdf_sphere_dielectric_ior.jpg)
+
+
+<!-- 
+convert +append test_bsdf_sphere_dielectric1.png test_bsdf_sphere_dielectric1.02.png test_bsdf_sphere_dielectric1.04.png test_bsdf_sphere_dielectric1.06.png test_bsdf_sphere_dielectric1.08.png test_bsdf_sphere_dielectric1.1.png test_bsdf_sphere_dielectric1.12.png test_bsdf_sphere_dielectric1.14.png test_bsdf_sphere_dielectric1.16.png test_bsdf_sphere_dielectric1.18.png test_bsdf_sphere_dielectric1-1.2.png -->
+
+<!-- 
+convert +append test_bsdf_sphere_dielectric1.2.png test_bsdf_sphere_dielectric1.3.png test_bsdf_sphere_dielectric1.4.png test_bsdf_sphere_dielectric1.5.png test_bsdf_sphere_dielectric1.6.png test_bsdf_sphere_dielectric1.7.png test_bsdf_sphere_dielectric1.8.png test_bsdf_sphere_dielectric1.9.png test_bsdf_sphere_dielectric2.png test_bsdf_sphere_dielectric2.42.png test_bsdf_sphere_dielectric1.2-2.42.png -->
+<!-- 
+convert -format jpg test_bsdf_sphere_dielectric1-1.2.png test_bsdf_sphere_dielectric1-1.2.jpg
+convert -format jpg test_bsdf_sphere_dielectric1.2-2.42.png test_bsdf_sphere_dielectric1.2-2.42.jpg 
+
+convert -append test_bsdf_sphere_dielectric1-1.2.png test_bsdf_sphere_dielectric1.2-2.42.png test_bsdf_sphere_dielectric_ior.png
+
+convert -format jpg test_bsdf_sphere_dielectric_ior.png test_bsdf_sphere_dielectric_ior.jpg -->
+
+
 
 # Plastic
 
@@ -520,29 +531,26 @@ Red albedo | Cyan albedo
 
 # Rough diffuse - Oren Nayar
 
+<!-- 
 ||||||
 |---|---|---|---|---|
 |![](data/test_bsdf_sphere_oren_nayar0.png)|![](data/test_bsdf_sphere_oren_nayar1.png)|![](data/test_bsdf_sphere_oren_nayar2.png)|![](data/test_bsdf_sphere_oren_nayar3.png)|![](data/test_bsdf_sphere_oren_nayar4.png)|
-|![](data/test_bsdf_sphere_oren_nayar5.png)|![](data/test_bsdf_sphere_oren_nayar6.png)|![](data/test_bsdf_sphere_oren_nayar7.png)|![](data/test_bsdf_sphere_oren_nayar8.png)|![](data/test_bsdf_sphere_oren_nayar9.png)|
+|![](data/test_bsdf_sphere_oren_nayar5.png)|![](data/test_bsdf_sphere_oren_nayar6.png)|![](data/test_bsdf_sphere_oren_nayar7.png)|![](data/test_bsdf_sphere_oren_nayar8.png)|![](data/test_bsdf_sphere_oren_nayar9.png)| -->
+
+![Oren-Nayar BSDF with varying roughness](data/test_bsdf_sphere_oren_nayar.jpg)
 
 
 # Rough anisotropic diffuse - Stochastic GGX
 
-|Rough diffuse with varying roughness and anisotropy|
-|:---:|
-|![](data/test_bsdf_sphere_rough_diffuse_anisotropic_kulla.png)|
+![Rough diffuse material with varying roughness and anisotropy](data/test_bsdf_sphere_rough_diffuse_anisotropic_kulla.png)
 
 # Rough anisotropic conductor
 
-|Rough conductor with varying roughness and anisotropy|
-|:---:|
-|![](data/test_bsdf_sphere_rough_conductor_anisotropic_kulla.png)|
+![Rough conductor with varying roughness and anisotropy](data/test_bsdf_sphere_rough_conductor_anisotropic_kulla.png)
 
 # Rough anisotropic dielectric
 
-|Rough dielectric with varying roughness and anisotropy|
-|:---:|
-|![](data/test_bsdf_sphere_rough_dielectric_anisotropic_kulla.png)|
+![Rough dielectric with varying roughness and anisotropy](data/test_bsdf_sphere_rough_dielectric_anisotropic_kulla.png)
 
 # Rough plastic
 
