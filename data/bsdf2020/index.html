@@ -512,8 +512,6 @@ convert -append test_bsdf_sphere_dielectric1-1.2.png test_bsdf_sphere_dielectric
 
 convert -format jpg test_bsdf_sphere_dielectric_ior.png test_bsdf_sphere_dielectric_ior.jpg -->
 
-
-
 # Plastic
 
 Red albedo | Cyan albedo
@@ -523,7 +521,17 @@ Red albedo | Cyan albedo
 
 # Microfacet model
 
-<!-- Microfacet models have been developped to model the fact that the microsurface of an object i -->
+After smooth surface we would like to model rough / scratched / etched surfaces. Smooth surfaces are assumed perfectly flat at macroscopic and microscopic scale, on the contrary rough materials are flat at macroscopic scale and present perturbations at microscopic scale.  
+
+Flat microsurface | Perturbed microsurface
+:---:|:---:
+![](data/smooth.png)|![](data/rough.png)
+![](data/test_bsdf_sphere_ms_rough_conductor0.png)|![](data/test_bsdf_sphere_ms_rough_conductor1.png)
+[Illustrations from Mitsuba 2 documentation TODO make my own schemes]
+
+Microfacet models have been developed to model the distribution of normals on the surface. These models are commonly parameterized by roughness, that controls the amount of perturbations at microscopic scale, and anisotropy that controls the stretch of the distribution w.r.t the surface parameterization. The directional distribution associated with an outgoing direction is a lobe centered around the mirror direction. Several microfacet distributions exist (GGX, Beckmann, Blinn-Phong), however we will only talk about the Throwbridge-Reitz (GGX) distribution, since this is a widely used model in production and is fully analytical. 
+
+![Varying parameters of the GGX distribution. Top row corresponds to an isotropic distribution. Linear roughness ranges horizontally in [0,1] from left to right and anisotropy ranges vertically in [0,1] from top to bottom. The outgoing direction vary over time from a normal angle of incidence ($\theta_o \rightarrow \frac{\pi}{2}$, $\cos \theta_o \rightarrow 0$) to a grazing angle of incidence ($\theta_o \rightarrow 0$, $\cos \theta_o \rightarrow 1$). ](data/test_bsdf_ggx_anisotropic.gif)
 
 ## Isotropic
 
