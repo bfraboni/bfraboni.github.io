@@ -22,6 +22,12 @@ It covers several state of the art models such as :
 
 # Geometric configuration
 
+A BSDF is a function that returns the amount of light scattered from an incoming direction $\omega_i$ to an outgoing direction $\omega_o$ at a point $p$. Physics-based BSDF follows three main properties:
+
+    1. Positivity $f(\omega_o, \omega_i) \geq 0$
+    2. Reciprocity $f(\omega_o, \omega_i) = f(\omega_i, \omega_o)$
+    3. Energy conservation $\int_{\Omega_i} f(\omega_o, \omega_i) \cos \theta_i \mathrm{d}\omega_i \leq 1$ 
+
 ![](data/geometric_configuration.png)
 
 We take by convention that :
@@ -29,7 +35,6 @@ We take by convention that :
 - The surface normal $\omega_g$ is always pointing outside the surface and is oriented Z-up. A light direction $\omega_i$ in the same hemisphere as the normal is entering the object, exiting otherwise.  
 - For isotropic materials the local basis can be constructed using an arbitrary tangent vector $\omega_t$ without consequences (e.g. [#Duff17]), or using the following approach.
 - For anisotropic materials the tangent vector $\omega_t$ of the basis have to be continuous over the surface. A classic approach to construct a continuous tangent vector is to take the derivative of the position w.r.t the surface parameterization $(u,v)$: $$\omega_t = \text{normalize}\left(\frac{\partial p}{\partial u}\right) \qquad \text{or} \qquad \omega_t = \text{normalize}\left(\frac{\partial p}{\partial v}\right)$$ Additionally, the tangent vector can be rotated around the normal by an angle $\theta$ to change the anisotropic direction: $$\omega_t = \text{rotate}\left(\text{normalize}\left(\frac{\partial p}{\partial u}\right), \omega_g, \theta\right)$$ Several shape parameterizations and the derivatives of position and normal are derived in PBRT [#Pharr18] Chapter 3: Shapes. 
-
 
 Notation | Definition
 ---|---
@@ -498,21 +503,30 @@ Smooth dielectric (IOR 1.5) | Difference with 100% transmissive model
 
 ![Varying the object index of refraction offers a wide range of appearance. The IOR values are from top to bottom and left to right (1.0, 1.02, 1.04, 1.06, 1.08, 1.1, 1.12, 1.14, 1.16, 1.18, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.47).](data/test_bsdf_sphere_dielectric_ior.jpg)
 
+<!-- 
+convert +append test_bsdf_sphere_dielectric1.png test_bsdf_sphere_dielectric1.02.png test_bsdf_sphere_dielectric1.04.png test_bsdf_sphere_dielectric1.06.png test_bsdf_sphere_dielectric1.08.png test_bsdf_sphere_dielectric1.1.png test_bsdf_sphere_dielectric1.12.png test_bsdf_sphere_dielectric1.14.png test_bsdf_sphere_dielectric1.16.png test_bsdf_sphere_dielectric1.18.png test_bsdf_sphere_dielectric1-1.2.png 
 
-<!-- 
-convert +append test_bsdf_sphere_dielectric1.png test_bsdf_sphere_dielectric1.02.png test_bsdf_sphere_dielectric1.04.png test_bsdf_sphere_dielectric1.06.png test_bsdf_sphere_dielectric1.08.png test_bsdf_sphere_dielectric1.1.png test_bsdf_sphere_dielectric1.12.png test_bsdf_sphere_dielectric1.14.png test_bsdf_sphere_dielectric1.16.png test_bsdf_sphere_dielectric1.18.png test_bsdf_sphere_dielectric1-1.2.png -->
-
-<!-- 
-convert +append test_bsdf_sphere_dielectric1.2.png test_bsdf_sphere_dielectric1.3.png test_bsdf_sphere_dielectric1.4.png test_bsdf_sphere_dielectric1.5.png test_bsdf_sphere_dielectric1.6.png test_bsdf_sphere_dielectric1.7.png test_bsdf_sphere_dielectric1.8.png test_bsdf_sphere_dielectric1.9.png test_bsdf_sphere_dielectric2.png test_bsdf_sphere_dielectric2.42.png test_bsdf_sphere_dielectric1.2-2.42.png -->
-<!-- 
-convert -format jpg test_bsdf_sphere_dielectric1-1.2.png test_bsdf_sphere_dielectric1-1.2.jpg
-convert -format jpg test_bsdf_sphere_dielectric1.2-2.42.png test_bsdf_sphere_dielectric1.2-2.42.jpg 
+convert +append test_bsdf_sphere_dielectric1.2.png test_bsdf_sphere_dielectric1.3.png test_bsdf_sphere_dielectric1.4.png test_bsdf_sphere_dielectric1.5.png test_bsdf_sphere_dielectric1.6.png test_bsdf_sphere_dielectric1.7.png test_bsdf_sphere_dielectric1.8.png test_bsdf_sphere_dielectric1.9.png test_bsdf_sphere_dielectric2.png test_bsdf_sphere_dielectric2.42.png test_bsdf_sphere_dielectric1.2-2.42.png
 
 convert -append test_bsdf_sphere_dielectric1-1.2.png test_bsdf_sphere_dielectric1.2-2.42.png test_bsdf_sphere_dielectric_ior.png
 
-convert -format jpg test_bsdf_sphere_dielectric_ior.png test_bsdf_sphere_dielectric_ior.jpg -->
+convert -format jpg test_bsdf_sphere_dielectric_ior.png test_bsdf_sphere_dielectric_ior.jpg 
+-->
+
+<!-- 
+convert +append test_bsdf_sphere_dielectric_nearest1.png test_bsdf_sphere_dielectric_nearest1.02.png test_bsdf_sphere_dielectric_nearest1.04.png test_bsdf_sphere_dielectric_nearest1.06.png test_bsdf_sphere_dielectric_nearest1.08.png test_bsdf_sphere_dielectric_nearest1.1.png test_bsdf_sphere_dielectric_nearest1.12.png test_bsdf_sphere_dielectric_nearest1.14.png test_bsdf_sphere_dielectric_nearest1.16.png test_bsdf_sphere_dielectric_nearest1.18.png test_bsdf_sphere_dielectric_nearest1-1.2.png 
+
+convert +append test_bsdf_sphere_dielectric_nearest1.2.png test_bsdf_sphere_dielectric_nearest1.3.png test_bsdf_sphere_dielectric_nearest1.4.png test_bsdf_sphere_dielectric_nearest1.5.png test_bsdf_sphere_dielectric_nearest1.6.png test_bsdf_sphere_dielectric_nearest1.7.png test_bsdf_sphere_dielectric_nearest1.8.png test_bsdf_sphere_dielectric_nearest1.9.png test_bsdf_sphere_dielectric_nearest2.png test_bsdf_sphere_dielectric_nearest2.42.png test_bsdf_sphere_dielectric_nearest1.2-2.42.png
+
+convert -append test_bsdf_sphere_dielectric_nearest1-1.2.png test_bsdf_sphere_dielectric_nearest1.2-2.42.png test_bsdf_sphere_dielectric_nearest_ior.png
+
+convert -format jpg test_bsdf_sphere_dielectric_nearest_ior.png test_bsdf_sphere_dielectric_nearest_ior.jpg 
+-->
 
 # Plastic
+
+<!-- A plastic material is defined by a  -->
+- A very comprehensive blog post about BSDF properties [link](https://0xef.wordpress.com/2020/05/01/physically-based-materials-energy-conservation-and-reciprocity/)
 
 Red albedo | Cyan albedo
 :---:|:---:
@@ -576,9 +590,32 @@ We won't derive existing multiple scattering models here but instead refer to th
 - the approach from Eric Heitz et al. [#Heitz16] which performs a stochastic random walk on the microsurface. 
 - the approach from Christopher Kulla and Alejandro Conty [#Kulla17]
 - the approach from Emmanuel Turquin [#Turquin19]
-N.B. Turquin's method has been adopted in Unity HDRP and Google's Filament.
 
-![Conductor with varying roughness. Top: with multiple scattering compensation. Bottom: without compensation.](data/ms_comparison.jpg)
+<!-- 
+Il y a 3 methodes :
+1) simuler explicitement le chemin sur la microsurface -> pas de precalculs, code un peu plus consequent, lent a evaluer, vérité terrain
+2) ajouter un terme d'energie avec un second lobe diffus : f = fss + fms (fss lobe de base, fms lobe diffus) -> necessite precalcul, assez rapide a evaluer,
+3) ajouter un terme d'energie avec un lobe mis a l'echelle equivalent au lobe primaire : f = (1 + k) * fss -> necessite precalcul, le plus simple a mettre en place, mais casse la reciprocité de la bsdf a cause de k 
+-->
+
+![Conductor with varying roughness. Top: without multiple scattering compensation. Bottom: with compensation.](data/ms_comparison.jpg)
+
+
+
+![Anisotropic rough diffuse w/o energy compensation](data/test_bsdf_sphere_rough_diffuse_anisotropic_kulla.png) ![Anisotropic rough diffuse with energy compensation](data/test_bsdf_sphere_ms_rough_diffuse_anisotropic_kulla.png)
+
+<!-- 
+convert +append test_bsdf_sphere_ms_rough_conductor?.png test_bsdf_sphere_ms_rough_conductors.png 
+convert +append test_bsdf_sphere_ms_rough_conductor_artistic?.png test_bsdf_sphere_ms_rough_conductors_artistic.png 
+convert +append test_bsdf_sphere_rough_conductor?.png test_bsdf_sphere_rough_conductors.png 
+convert +append test_bsdf_sphere_rough_conductor_artistic?.png test_bsdf_sphere_rough_conductors_artistic.png 
+
+convert -append test_bsdf_sphere_rough_conductors.png test_bsdf_sphere_ms_rough_conductors.png ms_comparison.png
+convert -append test_bsdf_sphere_rough_conductors_artistic.png test_bsdf_sphere_ms_rough_conductors_artistic.png ms_comparison_artistic.png
+
+convert -format jpg ms_comparison.png ms_comparison.jpg
+convert -format jpg ms_comparison_artistic.png ms_comparison_artistic.jpg
+ -->
 
 # Subsurface scattering 
 
