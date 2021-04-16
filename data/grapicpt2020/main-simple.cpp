@@ -1,0 +1,334 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cmath>   
+
+//
+// Smallpt deroulé pour l'enseignement, lancé de rayon iteratif avec echantillonnage des sources.
+// compilation:     g++ main-simple.cpp -o main -O3 -fopenmp
+// execution:       ./main [nombre de samples (defaut 16)]
+// sortie:          image.ppm 
+// Basile Fraboni 2020.
+//
+// Basé sur le code source original:
+// smallpt: Global Illumination in 99 lines of C++
+// A Path Tracer by Kevin Beason, 2008
+// https://www.kevinbeason.com/smallpt/ 
+//
+
+// Structure Vec
+// Est utilisée pour les positions dans l'espace (x,y,z), les vecteurs (x,y,z) et pour les couleurs (r,g,b)
+struct Vec 
+{        
+    double x, y, z;                  
+    Vec(double x_=0, double y_=0, double z_=0){ x=x_; y=y_; z=z_; } 
+    Vec operator+(const Vec &b) const { return Vec(x+b.x,y+b.y,z+b.z); } 
+    Vec operator-(const Vec &b) const { return Vec(x-b.x,y-b.y,z-b.z); } 
+    Vec operator*(double b) const { return Vec(x*b,y*b,z*b); } 
+    Vec mult(const Vec &b) const { return Vec(x*b.x,y*b.y,z*b.z); } 
+    Vec& norm(){ return *this = *this * (1/sqrt(x*x+y*y+z*z)); }            // normaliser
+    double dot(const Vec &b) const { return x*b.x+y*b.y+z*b.z; }            // produit scalaire
+    Vec operator%(Vec&b){return Vec(y*b.z-z*b.y,z*b.x-x*b.z,x*b.y-y*b.x);}  // produit vectoriel  
+}; 
+
+// Structure Ray
+// Rayon (origine, direction)
+struct Ray 
+{ 
+    Vec o, d; 
+    Ray(Vec o_, Vec d_) : o(o_), d(d_) {} 
+};
+
+// Types de matériaux: diffus, miroir, transparent
+enum Refl_t { DIFF, SPEC, REFR };  
+
+// Sphere (rayon, position, emission, couleur, materiau)
+struct Sphere 
+{ 
+    double rad;       // rayon 
+    Vec p, e, c;      // position, emission, couleur 
+    Refl_t refl;      // materiau (DIFFuse, SPECular, REFRactive) 
+    double f;         // parametre pour simuler une (fausse) rugosité aux materiaux 
+
+    // Sphere(rayon, position, emission, couleur, mteriau)
+    Sphere(double rad_, Vec p_, Vec e_, Vec c_, Refl_t refl_, double fuzz_ = 0) : rad(rad_), p(p_), e(e_), c(c_), refl(refl_), f(fuzz_) {} 
+
+    // Intersection rayon / sphere
+    // Retourne la distance sur le rayon si une intersection est trouvée, 0 sinon 
+    double intersect(const Ray &r) const 
+    { 
+        Vec op = p-r.o; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0 
+        double t, eps=1e-4, b=op.dot(r.d), det=b*b-op.dot(op)+rad*rad; 
+        if (det<0) 
+            return 0; 
+        else 
+            det=sqrt(det); 
+        return (t=b-det)>eps ? t : ((t=b+det)>eps ? t : 0); 
+    } 
+}; 
+
+// Description de la scene, composée uniquement de sphères: Sphere(rayon, position, emission, couleur, mteriau)
+Sphere spheres[] = 
+{
+    Sphere(1e5, Vec( 1e5+1,40.8,81.6), Vec(),Vec(.75,.25,.25), DIFF),    // Mur gauche
+    Sphere(1e5, Vec(-1e5+99,40.8,81.6),Vec(),Vec(.25,.25,.75), DIFF),    // Mur droit
+    Sphere(1e5, Vec(50,40.8, 1e5),     Vec(),Vec(.75,.75,.75), DIFF),    // Mur du fond
+    Sphere(1e5, Vec(50,40.8,-1e5+170), Vec(),Vec(),            DIFF),    // Frnt
+    Sphere(1e5, Vec(50, 1e5, 81.6),    Vec(),Vec(.75,.75,.75), DIFF),    // Sol
+    Sphere(1e5, Vec(50,-1e5+81.6,81.6),Vec(),Vec(.75,.75,.75), DIFF),    // Plafond
+    Sphere(16.5,Vec(27,16.5,47),       Vec(),Vec(1,1,1)*.999,  SPEC, 0.3f),    // Sphere miroir + fuzz
+    Sphere(16.5,Vec(73,16.5,78),       Vec(),Vec(1,1,1)*.999,  REFR, 0.3f),    // Sphere verre + fuzz
+    Sphere(1.5*5, Vec(50,81.6-16.5,81.6),Vec(4,4,4)*8,  Vec(), DIFF),    // Source 1
+    // Sphere(1.5, Vec(75,16.5,59)       ,Vec(4,4,4)*100,  Vec(), DIFF),   // Source 2
+};
+int numSpheres = sizeof(spheres)/sizeof(Sphere);
+
+// Intersection entre un rayon et la scene (boucle sur toutes les spheres)
+// Renvoie la distance t d'intersection la plus proche et l'indice de l'objet intersecté
+inline bool intersect(const Ray &r, double &t, int &id)
+{ 
+    static const double inf = 1e20;
+    t = inf;
+    double d;
+    for(int i=numSpheres; i >= 0; i--) 
+    {
+        d = spheres[i].intersect(r);
+        if( d > 0 && d < t )
+        {
+            t = d;
+            id = i;
+        } 
+    }
+    return t < inf; 
+} 
+
+// Construit et evalue un chemin, version iterative, avec echantillonnage des sources de lumières
+Vec radiance(Ray r)
+{
+    double t;       // Distance d'intersection
+    int id=0;       // id de l'objet intersecté
+    int E=1;        // energie des sources trouvée par hasard (sans echantillonnage explicite des sources)
+    int depth = 0;  // longueur du chemin (nombre de rebond sur la scene)
+    Vec cl(0,0,0);  // contribution du chemin (couleur ajoutée au pixel) 
+    Vec cf(1,1,1);  // energie porté par le chemin
+
+    // Construction iterative des chemins
+    while (1)
+    {   
+        // Si on ne trouve pas d'intersection avec la scene, on a terminé le chemin, on quitte la boucle
+        if(!intersect(r, t, id)) 
+            break;
+
+        // Recuperation des infos de l'objet intersecté
+        const Sphere &obj = spheres[id];        
+        Vec x = r.o + r.d * t; // Position
+        Vec n = (x-obj.p).norm(); // Normale
+        Vec nl = n.dot(r.d) < 0 ? n : n * -1;
+        Vec f = obj.c; // Couleur
+        
+        // On ajoute les emission
+        cl = cl + cf.mult(obj.e * E);
+
+        // On peut reactiver les contribution directes si elles ont été desactivées au rebond diffus precedent.
+        // Mais cela ajoute de la variance qui se manifeste comme du bruit dans l'image au niveau des caustiques.
+        // On peut choisir de ne pas reactiver les sources directes apres un premier rebond diffus (pas de chemins ES*DS*L).
+        // Cela biaise le rendu final (pas de caustiques) mais reduit considerablement le bruit.
+        if( E == 0 )
+            E = 1;
+        
+        // Roulette russe, 
+        // On continue le chemin avec une probabilité P  
+        // On arrete le chemin avec une probabilité 1 - P 
+        // Ici on prend P comme etant le max de la reflectance de l'objet 
+        // (mais on pourrait prendre un autre critère...)
+        double p = f.x>f.y && f.x>f.z ? f.x : f.y>f.z ? f.y : f.z;
+        if(++depth>5)
+        {
+            if (drand48()<p) 
+                f=f*(1/p); 
+            else
+                break;
+        }
+
+        // On met a jour l'energie portée par le chemin
+        cf = cf.mult(f);
+        
+        // Si le materiau est diffus, on echantillonne les sources de lumières directement.
+        // Cela ne fonctionne qu'avec les matériaux dont les distributions ne 
+        // sont pas des diracs (miroir parfait, verre parfait).
+        // Pour l'instant ne marche pas avec les materiaux speculaire rugueux (f > 0), car
+        // il n'y a pas de distribution bien definie (c'est un hack).
+        if(obj.refl == DIFF)
+        {                  
+            // Echantillonnage des sources de lumiere spheriques.
+            // On tire des directions qui pointent directement sur les sources
+            // Cela permet au rendu de converger plus rapidement
+            // car les contributions lumineuses sont trouvées plus frequemment qu'en 
+            // tirant les rayon aleatoirement dans la scene.
+            Vec e;
+            double numLights = 0;
+            for (int i=0; i<numSpheres; i++)
+            {
+                const Sphere &s = spheres[i];
+                // On passe les sphere qui ne sont pas des sources
+                if(s.e.x<=0 && s.e.y<=0 && s.e.z<=0) 
+                    continue; 
+                // Echantillonnage par importance des sources spheriques
+                // Pour les details des calculs pour echantillonner une sphere cf PBRT: 
+                // http://www.pbr-book.org/3ed-2018/Light_Transport_I_Surface_Reflection/Sampling_Light_Sources.html#x2-SamplingSpheres
+                numLights++;
+                Vec sw=s.p-x, su=((fabs(sw.x)>.1?Vec(0,1):Vec(1))%sw).norm(), sv=sw%su;
+                double cos_a_max = sqrt(1-s.rad*s.rad/(x-s.p).dot(x-s.p));
+                double eps1 = drand48(), eps2 = drand48();
+                double cos_a = 1-eps1+eps1*cos_a_max;
+                double sin_a = sqrt(1-cos_a*cos_a);
+                double phi = 2*M_PI*eps2;
+                Vec l = su*cos(phi)*sin_a + sv*sin(phi)*sin_a + sw*cos_a;
+                l.norm();
+                // Test de visiblité entre la source et le point actuel 
+                if (intersect(Ray(x,l), t, id) && id==i)
+                {  
+                    // inverse de la densité du point echantillonné
+                    double omega = 2*M_PI*(1-cos_a_max);
+
+                    // On divise par pi pour la BSDF diffuse
+                    e = e + cf.mult(s.e*l.dot(nl)*omega)*M_1_PI;  
+                }
+            }
+
+            // Ajout de la contribution des sources à la couleur finale
+            cl = cl + e * (1.0 / numLights);
+            
+            // On desactive la contribution des sources trouvées au prochain rebond pour 
+            // ne pas accumuler plusieurs fois l'energie des chemins de longueur d+1  
+            // Eh non, pas de MIS entre echantillonnage des sources et de la BSDF pour le moment...
+            E = 0; 
+
+            // Une surface diffuse reflete de la lumiere venant de toutes les directions,
+            // donc on tire une direction uniforme en angle solide sur l'hemisphere pour continuer le chemin
+            double r1= 2 * M_PI * drand48(), r2 = drand48(), r2s = sqrt(r2);
+            Vec w=nl, u=((fabs(w.x)>.1?Vec(0,1):Vec(1))%w).norm(), v=w%u;
+            Vec d = (u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2)).norm();
+            
+            // Prochain rayon
+            r = Ray(x,d);
+            continue;
+        } 
+        
+        // Reflexion parfaite (miroir)
+        Ray reflRay(x, r.d - n * 2 * n.dot(r.d)); 
+
+        reflRay.d = (reflRay.d + Vec(drand48()-0.5,drand48()-0.5,drand48()-0.5) * obj.f).norm();
+        if(obj.refl == SPEC)
+        {   
+            r = reflRay;
+            continue;
+        }
+
+        // Transmission dielectrique parfaite (refraction)
+        // Rayon de dehors vers dedans ? ou l'inverse ?
+        bool into = n.dot(nl)>0;      
+
+        // Calcul de l'angle de refraction
+        double nc = 1;                      // indice de refraction exterieur (1 => air)
+        double nt = 1.5;                    // indice de refraction interieur (1.5 => verre)
+        double nnt = into ? nc/nt : nt/nc;  // ratio des indices de refraction (eta)
+        double ddn = r.d.dot(nl);           
+        double cos2t;                       // cosinus de l'angle de refraction au carré
+        
+        // Reflexion total interne: l'angle du rayon refracté est tel que le rayon 
+        // resterait bloqué a l'interieur de l'objet indefiniment.
+        // On choisit donc de faire une reflexion parfaite
+        if((cos2t=1-nnt*nnt*(1-ddn*ddn))<0)
+        {    
+            r = reflRay;
+            continue;
+        }
+        
+        // Direction refractée       
+        Vec tdir = (r.d*nnt-n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm();
+        
+        // Calcul du terme de Fresnel avec l'approximation de Schlick 
+        // et calcul des probabilités de reflexion / transmission selon l'angle incident
+        double a=nt-nc, b=nt+nc, R0=a*a/(b*b), c = 1-(into?-ddn:tdir.dot(n));
+        double Re=R0+(1-R0)*c*c*c*c*c,Tr=1-Re,P=.25+.5*Re,RP=Re/P,TP=Tr/(1-P);
+        
+        // Selection aleatoire (Roulette Russe) entre reflexion et transmission dielectrique
+        if( drand48() < P )
+        {
+            // Reflexion
+            cf = cf * RP;
+            r = reflRay;
+        } 
+        else 
+        {
+            // Transmission
+            cf = cf * TP;
+            tdir = (tdir + Vec(drand48()-0.5,drand48()-0.5,drand48()-0.5) * obj.f).norm();
+            r = Ray(x, tdir);
+        }
+
+        continue;
+    }
+    return cl;
+}
+
+int main(int argc, char * argv[])
+{   
+    // Graine du generateur de nombres aleatoires
+    srand(123456789);
+    
+    // Init constants
+    int w = 800, h = 800; 
+    int samples = argc > 1 ? std::atoi(argv[1]) : 16;
+
+    // Image HDR 
+    std::vector<double> image_double(w * h * 4, 0.f);
+
+    // Camera
+    Vec from = Vec(50,52,295.6);
+    Vec camd = Vec(0,-0.042612,-1).norm();
+    Vec to = from + camd * 100;
+    Ray cam(Vec(50,52,295.6), Vec(0,-0.042612,-1).norm()); // cam pos, dir 
+    Vec cx=Vec(w*.5135/h), cy=(cx%cam.d).norm()*.5135; 
+
+    // Lancer de rayons
+    #pragma omp parallel for
+    for(int x = 0; x < w; ++x)
+    for(int y = 0; y < h; ++y)
+    for(int ss = 0; ss < samples; ++ss)
+    {
+        // Indice du pixel à raffiner
+        unsigned int pix = x + y * w;
+
+        // Rayon camera a travers le pixel (x, y) plus une perturbation aleatoire
+        Vec d = cx*( (x + drand48() - 0.5f)/w - .5) + cy*( (y + drand48() - 0.5f)/h - .5) + cam.d;
+
+        // Lance le rayon et recupere la contribution du chemin echantillonné
+        // On avance l'origin du rayon pour commencer à l'interieur de la scene (hack)
+        Vec contribution = radiance(Ray(cam.o+d*140,d.norm()));
+
+        // Accumulation des echantillons : moyenne progressive
+        image_double[4*pix+3] ++;
+        image_double[4*pix+0] += (contribution.x - image_double[4*pix+0]) / image_double[4*pix+3];
+        image_double[4*pix+1] += (contribution.y - image_double[4*pix+1]) / image_double[4*pix+3];
+        image_double[4*pix+2] += (contribution.z - image_double[4*pix+2]) / image_double[4*pix+3];
+    }
+
+    // Ecriture de l'image
+    std::ofstream fichier("image.ppm", std::ios_base::out | std::ios_base::binary);
+    fichier << "P6" << std::endl << w << ' ' << h << std::endl << "255" << std::endl;
+    for(int y = h-1; y >= 0 ; --y)
+    for(int x = 0; x < w; ++x)
+    {
+        // Indice du pixel
+        unsigned int pix = x + y * w;
+        // Seuillage et tonemapping simple (avec la racine) de chaque canal 
+        unsigned char r = std::min(255., std::max(0., std::sqrt(image_double[4*pix+0]) * 255.)); 
+        unsigned char g = std::min(255., std::max(0., std::sqrt(image_double[4*pix+1]) * 255.)); 
+        unsigned char b = std::min(255., std::max(0., std::sqrt(image_double[4*pix+2]) * 255.)); 
+        fichier << r << g << b; // red, green, blue
+    }
+    fichier.close();
+    return 0;
+}
