@@ -28,13 +28,13 @@ A BSDF is a function that returns the amount of light scattered from an incoming
     2. Reciprocity $f(\omega_o, \omega_i) = f(\omega_i, \omega_o)$
     3. Energy conservation $\int_{\Omega_i} f(\omega_o, \omega_i) \cos \theta_i \mathrm{d}\omega_i \leq 1$ 
 
-![](data/geometric_configuration.png)
+![TODO: remake figure](data/geometric_configuration.png)
 
 We take by convention that :
 - All directions are unit vectors pointing outwards in a local orthonormal basis $(\omega_g,\omega_t,\omega_b)$ centered at the surface point $p$ (unless otherwise stated).
 - The surface normal $\omega_g$ is always pointing outside the surface and is oriented Z-up. A light direction $\omega_i$ in the same hemisphere as the normal is entering the object, exiting otherwise.  
 - For isotropic materials the local basis can be constructed using an arbitrary tangent vector $\omega_t$ without consequences (e.g. [#Duff17]), or using the following approach.
-- For anisotropic materials the tangent vector $\omega_t$ of the basis have to be continuous over the surface. A classic approach to construct a continuous tangent vector is to take the derivative of the position w.r.t the surface parameterization $(u,v)$: $$\omega_t = \text{normalize}\left(\frac{\partial p}{\partial u}\right) \qquad \text{or} \qquad \omega_t = \text{normalize}\left(\frac{\partial p}{\partial v}\right)$$ Additionally, the tangent vector can be rotated around the normal by an angle $\theta$ to change the anisotropic direction: $$\omega_t = \text{rotate}\left(\text{normalize}\left(\frac{\partial p}{\partial u}\right), \omega_g, \theta\right)$$ Several shape parameterizations and the derivatives of position and normal are derived in PBRT [#Pharr18] Chapter 3: Shapes. 
+- For anisotropic materials the tangent vector $\omega_t$ of the basis have to be continuous over the surface. A classic approach to construct a continuous tangent vector is to take the derivative of the position w.r.t the surface parameterization $(u,v)$: $$\omega_t = \text{normalize}\left(\frac{\partial p}{\partial u}\right) \qquad \text{or} \qquad \omega_t = \text{normalize}\left(\frac{\partial p}{\partial v}\right)$$ Additionally, the tangent vector can be rotated around the normal by an angle $\theta$ to change the anisotropic direction: $$\omega_t = \text{rotate}\left(\text{normalize}\left(\frac{\partial p}{\partial u}\right), \omega_g, \theta\right)$$ Several shape parameterizations and the derivatives of position and normal are derived in PBRT [#Pharr18] Chapter 3: Shapes.
 
 Notation | Definition
 ---|---
@@ -72,19 +72,22 @@ The following code snippet describes the common BSDF interface in a path tracer.
 We will derive from it all BSDF described in this document. Its main methods are:
 - **eval** that returns the BSDF value of a given incident direction $\omega_i$ when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$.
 - **pdf** that returns the probability density of a given incident direction $\omega_i$, when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$.
-- **sample** that returns a sampled incident direction $\omega_i$ using the random triplet $rnd$, when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$. N.B Not all the BSDF sampling methods will consume the random triplet. In some cases, ones would prefer to send a sampler as a parameter, however this can lead to dimension mismatching with QMC sampling and inconsistent results. Hence we take the convention that random numbers are passed as argument even if they are not used. 
+- **sample** that returns a sampled incident direction $\omega_i$ using random samples from the sampler $sampler$, when the outgoing direction is $\omega_o$ and the texture coordinates are $(u,v)$. 
+N.B Not all the BSDF sampling methods will consume the same amount of random samples.
+However this can lead to dimension mismatching with QMC samplers and inconsistent results.
+In some cases, ones would prefer to send a random triplet (or n-uplet) as a parameter, and that for every samples the same amount of random numbers are passed as argument even if they are not used.
 
 ```
 class Bsdf
 {
 public:
     Bsdf(){}
-    Bsdf(std::shared_ptr<Texture> albedo, BsdfType type = NULL) : m_albedo(albedo), m_type(type) {}
+    Bsdf(Texture* albedo, BsdfType type = NULL) : m_albedo(albedo), m_type(type) {}
     virtual ~Bsdf() {}
-    virtual Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const = 0;
-    virtual float pdf( const Vector& wi, const Vector& wo, const vec2& uv ) const = 0;
-    virtual Vector sample( const vec3& rnd, const Vector& wo, const vec2& uv ) const = 0;
-    std::shared_ptr<Texture> m_albedo;
+    virtual Color eval(const Vector& wi, const Vector& wo, const vec2& uv) const = 0;
+    virtual float pdf(const Vector& wi, const Vector& wo, const vec2& uv) const = 0;
+    virtual BsdfSample sample(Sampler& sampler, const Vector& wo, const vec2& uv) const = 0;
+    Texture* m_albedo;
     BsdfType m_type;
 };
 ```
@@ -92,10 +95,24 @@ We assume there exists a `Texture` class which implements the operator:
 ```
 virtual Color operator() ( const vec2& uv ) const = 0;
 ```
-to access surface properties such as albedo, roughness, anisotropy, etc at the specified coordinates $(u,v)$. `BsdfType` enumerates the differents combinations of BSDF lobes that can be used. This is useful to define boolean test functions to retrieve bsdf properties.
+to access surface properties such as albedo, roughness, anisotropy, etc at the specified coordinates $(u,v)$. 
+`BsdfSample` is a small 32-bytes structure containing all required informations of a BSDF sample.
+```
+struct BsdfSample
+{
+    Vector wi;    // the sampled direction
+    float pdf;    // the pdf of the direction
+    Color weight; // the associated sample weight (bsdf * cos / pdf)
+};
+
+```
+Using a dedicated structure allow to return any additional information such as which lobe has been sampled for multi-lobe BSDF.
+`BsdfType` enumerates the differents combinations of BSDF lobes that can be used. 
+This is useful to define boolean test functions to retrieve bsdf properties.
 ```
 enum BsdfType
 {
+    NULL                 = 0,
     GLOSSYREFLECTION     = (1 << 0),
     GLOSSYTRANSMISSION   = (1 << 1),
     DIFFUSEREFLECTION    = (1 << 2),
@@ -103,12 +120,15 @@ enum BsdfType
     SPECULARREFLECTION   = (1 << 4),
     SPECULARTRANSMISSION = (1 << 5),
     ANISOTROPIC          = (1 << 6),
+    PHASE                = (1 << 7),
+    FORWARD              = (1 << 8),
+    BACKWARD             = (1 << 9),
     GLOSSY               = GLOSSYREFLECTION | GLOSSYTRANSMISSION,
     DIFFUSE              = DIFFUSEREFLECTION | DIFFUSETRANSMISSION,
     SPECULAR             = SPECULARREFLECTION | SPECULARTRANSMISSION,
     TRANSMISSIVE         = GLOSSYTRANSMISSION | DIFFUSETRANSMISSION | SPECULARTRANSMISSION,
     REFLECTIVE           = GLOSSYREFLECTION | DIFFUSEREFLECTION | SPECULARREFLECTION,
-}; 
+};
 
 class Bsdf
 {
@@ -116,31 +136,38 @@ public:
 	
 	...
 	
-	bool hasGlossy() const { return (m_type & GLOSSY) != 0; }
-    bool hasDiffuse() const { return (m_type & DIFFUSE) != 0; }
-    bool hasSpecular() const { return (m_type & SPECULAR) != 0; }
-    bool isPhase() const { return m_type != 0 && (m_type & ~PHASE) == 0; }
-    bool isPureGlossy() const { return m_type != 0 && (m_type & ~GLOSSY) == 0; }
-    bool isPureSpecular() const { return m_type != 0 && (m_type & ~SPECULAR) == 0; }
-    bool isPureDiffuse() const { return m_type != 0 && (m_type & ~DIFFUSE) == 0; }
-    bool isTransmissive() const { return (m_type & TRANSMISSIVE) != 0; }
-    bool isAnisotropic() const { return (m_type & ANISOTROPIC) != 0; }
+    virtual bool hasDiffuse() const { return (m_type & DIFFUSE) != 0; }
+    virtual bool hasGlossy() const { return (m_type & GLOSSY) != 0; }
+    virtual bool hasSpecular() const { return (m_type & SPECULAR) != 0; }
+    virtual bool hasForward() const { return (m_type & FORWARD) != 0; }
+    virtual bool hasBackward() const { return (m_type & BACKWARD) != 0; }
+    virtual bool isPhase() const { return (m_type & PHASE) != 0; }
+    virtual bool isPureDiffuse() const { return m_type != 0 && (m_type & ~DIFFUSE) == 0; }
+    virtual bool isPureGlossy() const { return m_type != 0 && (m_type & ~GLOSSY) == 0; }
+    virtual bool isPureSpecular() const { return m_type != 0 && (m_type & ~SPECULAR) == 0; }
+    virtual bool isForward() const { return m_type != 0 && (m_type & ~FORWARD) == 0; }
+    virtual bool isBackward() const { return m_type != 0 && (m_type & ~BACKWARD) == 0; }
+    virtual bool isTransmissive() const { return (m_type & TRANSMISSIVE) != 0; }
+    virtual bool isAnisotropic() const { return (m_type & ANISOTROPIC) != 0; }
+    virtual bool isDelta() const { return isPureSpecular(); }           
+    virtual bool hasDelta() const { return hasSpecular(); }           
 };
 ``` 
 One last method to add is a test function to ensure that the BSDF is normalized, which is super useful when implementing BSDF models. This test is called the *white furnace test*, see [#Heitz14a] Section 3.5 for further details.
 ```
-
 class Bsdf
 {
 public:
+
+    ...
+
     virtual void whiteFurnaceTest() const = 0;
 }
 ```
 
 # Lambert model
 
-> "First of the 3-models-to-start-with"
-
+<!-- > "First of the 3-models-to-start-with" -->
 The Lambert model assumes that the object surface is perfectly flat and that the light is equally reflected in all directions. The amount of reflected light is constant over the hemisphere and is independent of the eye direction:   
 
 \begin{equation}
@@ -169,7 +196,7 @@ Finally the code for the Lambert BSDF model is:
 class BsdfLambert : public Bsdf
 {
 public:
-    BsdfLambert(std::shared_ptr<Texture> albedo) : Bsdf(albedo, DIFFUSEREFLECTION) {}
+    BsdfLambert(Texture* albedo) : Bsdf(albedo, DIFFUSEREFLECTION) {}
     
     Color eval( const Vector& wi, const Vector& wo, const vec2& uv ) const
     {
@@ -195,7 +222,7 @@ Constant albedo - Environment lightning  | Textured albedo - Environment lightni
 
 # 100% reflective BSDF
 
-The second of the 3-models-to-start-with is a 100% reflective material. Although this model is not physically based, it gives pleasant results and is simple to implement. In addition it is a good introduction to understand the reflection law. This model assumes that the surface is perfectly flat, and the light is reflected in a unique direction symmetric w.r.t the normal of the surface. The reflection ray can be computed using the *Snell-Descartes reflection law*:
+The second model is a 100% reflective material. Although this model is not physically based, it gives pleasant results and is simple to implement. In addition it is a good introduction to understand the reflection law. This model assumes that the surface is perfectly flat, and the light is reflected in a unique direction symmetric w.r.t the normal of the surface. The reflection ray can be computed using the *Snell-Descartes reflection law*:
 
 \begin{equation}
 	\omega_i = 2 \langle \omega_g, \omega_o \rangle \omega_g - \omega_o
