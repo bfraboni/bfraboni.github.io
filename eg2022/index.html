@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Volumetric Multi-View Rendering</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="data/style.css" />
+  </head>
+  <body style="margin-bottom: 5%;">
+    <div class="main">
+      <h1>Volumetric Multi-View Rendering</h1>
+
+      <h3 style="text-align:center">
+        <a style="text-decoration: none; color: #516482; margin: 15px;" target="_blank" href="https://bfraboni.github.io">
+          Basile Fraboni<sup>1,2</sup> 
+        </a>
+        
+        <a style="text-decoration: none; color: #516482; margin: 15px; "target="_blank" href="https://webanck.fr/">
+          Antoine Webanck<sup>2</sup> 
+        </a>
+        
+        <a style="text-decoration: none; color: #516482; margin: 15px; "target="_blank" href="https://perso.liris.cnrs.fr/nicolas.bonneel/">
+          Nicolas Bonneel<sup>2</sup> 
+        </a>
+        
+        <a style="text-decoration: none; color: #516482; margin: 15px; "target="_blank" href="http://perso.univ-lyon1.fr/jean-claude.iehl/">
+          Jean-Claude Iehl<sup>2</sup> 
+        </a>
+      </h3>
+
+      <h5 style="text-align:center">
+        <span style="text-decoration: none; color: #516482; margin: 15px;">
+          <sup>1</sup>INSA Lyon, CNRS/LIRIS, France 
+        </span>
+        <span style="text-decoration: none; color: #516482; margin: 15px;">
+          <sup>2</sup>Université de Lyon, CNRS/LIRIS, France 
+        </span>
+      </h5>
+
+      <br>
+
+      <figure>
+        <img width="100%" src="data/teaser-dragon.png" alt="teaser">
+        <figcaption>
+          <strong>Volumetric multi-view path tracing.</strong> We render a sequence of 45 frames of the Dragon cloud scene including heterogeneous medium to be displayed on a lightfield screen. Instead of rendering the sequence frame by frame using volumetric path tracing (VPT), our method (MVPT) jointly renders the sequence at once reusing some computation during the simulation. We observe a significant variance reduction at equal time when rendering the whole sequence -- or reach a desired quality at lower time. In addition the correlation of reused paths between nearby frames almost makes the flickering caused by dissimilar random sampling dissapear. This makes the sequences pleasier to the eye even at low sample count.
+        </figcaption>
+      </figure>
+
+      <h2>Abstract</h2>
+
+      <p>
+        Rendering photo-realistic images using Monte Carlo path tracing often requires sampling a large number of paths to reach acceptable levels of noise. This is particularly the case when rendering participating media, that complexify light paths with multiple scattering events. Our goal is to accelerate the rendering of heterogeneous participating media by exploiting redundancy across views, for instance when rendering animated camera paths, motion blur in consecutive frames or multi-view images such as lenticular or light-field images. This poses a challenge as existing methods for sharing light paths across views cannot handle heterogeneous participating media and classical estimators are not optimal in this context. We address these issues by proposing three key ideas. First, we propose new volume shift mappings to transform light paths from one view to another within the recently introduced null-scattering framework, taking into account changes in density along the transformed path. Second, we generate a shared path suffix that best contributes to a subset of views, thus effectively reducing variance. Third, we introduce the multiple weighted importance sampling estimator that benefits from multiple importance sampling for combining sampling strategies, and from weighted importance sampling for reducing the variance due to non contributing strategies. We observed significant reuse when views largely overlap, with no visible bias and reduced variance compared to regular path tracing at equal time. Our method further readily integrates into existing volumetric path tracing pipelines.
+      </p>
+
+      <h2>Teaser video</h2>
+
+      <center>
+      <iframe width="640" height="360" src="https://www.youtube.com/embed/1pw2Eq0kRfw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </center>
+
+      <h2>Materials</h2>
+
+      <center style="width: 100%; display: inline-block;">
+        <center style="width: 20%; display: inline-block;">
+        <a style="text-decoration: none; display: inline-block;" target="_blank" href="data/volmvpt-eg2022.pdf">
+          <img class="thumbnail" src="data/volmvpt-eg2022-thumbnail.png" alt="paperhigh">
+        </a>
+        <span style="display: inline-block;">
+          article (high res - 54Mb)
+        </span>
+        </center>
+
+        <center style="width: 20%; display: inline-block;">
+        <a style="text-decoration: none" target="_blank" href="data/volmvpt-eg2022-small.pdf">
+          <img class="thumbnail" src="data/volmvpt-eg2022-thumbnail.png" alt="paperlow">
+        </a>
+        <span style="display: inline-block;">
+          article (low res - 5.9Mb)
+        </span>
+        </center>
+
+        <center style="width: 20%; display: inline-block;">
+        <a style="text-decoration: none" target="_blank" href="data/volmvpt-eg2022-supplemental.pdf">
+          <img class="thumbnail" src="data/volmvpt-eg2022-supplemental-thumbnail.png" alt="supplemental">
+        </a>
+        <span style="display: inline-block;">
+          supplemental document
+        </span>
+        </center>
+
+        <center style="width: 20%; display: inline-block;">
+        <a style="text-decoration: none" target="_blank" href="">
+          <img class="thumbnail" src="data/code-thumbnailx2.png" alt="code">
+        </a>
+        <span style="display: inline-block;">
+          code (forthcoming on github)
+        </span>
+        </center>
+      </center>
+
+      <h2>Citation</h2>
+
+      <!-- Basile Fraboni and Antoine Webanck and Nicolas Bonneel and Jean-Claude Iehl. 2022. Volumetric Multi-view Rendering. Computer Graphics Forum. -->
+
+      <pre><code>
+    @article{Fraboni2022volmvpt,
+        title     = {{Volumetric Multi-view Rendering}},
+        author    = {Basile Fraboni and Antoine Webanck and Nicolas Bonneel and Jean-Claude Iehl},
+        year      = {2022},
+        journal   = {Computer Graphics Forum},
+        publisher = {Eurographics},
+    }
+      </code></pre>
+
+    </div>
+    <script type="text/javascript" src="data/compare.js"></script>
+  </body>
+</html>
