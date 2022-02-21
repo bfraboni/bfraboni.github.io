@@ -1,13 +1,18 @@
 @import url('https://fonts.googleapis.com/css?family=Raleway:800i');
 
 body {
-    position: absolute;
+    width : 1000px ;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: left;
+    margin : auto ;
+
+    /*position: absolute;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-align: left;
     left: 200px;
     right: 200px;
     margin: 0;
-    padding: 0;
+    padding: 0;*/
     max-width: none;
     color: #555;
     font-size: 15px;
