@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Adaptive Multi-View Path Tracing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="data/style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1>Adaptive Multi-View Path Tracing</h1>
+
+      <h2 style="text-align:center">
+        <a style="text-decoration: none; color: #516482; margin: 15px;" target="_blank" href="https://bfraboni.github.io">
+          Basile Fraboni 
+        </a>
+        
+        <a style="text-decoration: none; color: #516482; margin: 15px; "target="_blank" href="http://perso.univ-lyon1.fr/jean-claude.iehl/">
+          Jean-Claude Iehl 
+        </a>
+        
+        <a style="text-decoration: none; color: #516482; margin: 15px; "target="_blank" href="https://perso.liris.cnrs.fr/vincent.nivoliers/">
+          Vincent Nivoliers 
+        </a>
+        
+        <a style="text-decoration: none; color: #516482; margin: 15px; "target="_blank" href="https://github.com/guibou?tab=followers">
+          Guillaume Bouchard
+        </a>
+      </h2>
+
+      <div style="text-align:center">
+        <a style="text-decoration: none" target="_blank" href="paper.pdf">
+          <img class="thumbnail" src="paper-thumbnail.png" alt="paper">
+        </a>
+
+        <a style="text-decoration: none" target="_blank" href="slides.pdf">
+          <img class="thumbnail" src="slides-thumbnail.png" alt="slides">
+        </a>
+
+        <a style="text-decoration: none" target="_blank" href="https://github.com/bfraboni/smallmvpt">
+          <img class="thumbnail" src="code-thumbnail.png" alt="code">
+        </a>
+      </div>
+
+      <h2>Abstract</h2>
+
+      <p>
+        Rendering photo-realistic image sequences using path tracing and Monte Carlo integration often requires sampling a large
+        number of paths to get converged results. In the context of rendering multiple views or animated sequences, such sampling can
+        be highly redundant. Several methods have been developed to share sampled paths between spatially or temporarily similar
+        views. However, such sharing is challenging since it can lead to bias in the final images. Our contribution is a Monte Carlo
+        sampling technique which generates paths, taking into account several cameras. First, we sample the scene from all the cameras
+        to generate hit points. Then, an importance sampling technique generates bouncing directions which are shared by a subset of
+        cameras. This set of hit points and bouncing directions is then used within a regular path tracing solution. For animated scenes,
+        paths remain valid for a fixed time only, but sharing can still occur between cameras as long as their exposure time intervals
+        overlap. We show that our technique generates less noise than regular path tracing and does not introduce noticeable bias.
+      </p>
+
+      <h2>Cite</h2>
+      <pre>
+        <code>
+        @inproceedings{fraboni:hal-02279950,
+            TITLE = {{Adaptive multi-view path tracing}},
+            AUTHOR = {Fraboni, Basile and Iehl, Jean-Claude and Nivoliers, Vincent and Bouchard, Guillaume},
+            URL = {https://hal.archives-ouvertes.fr/hal-02279950},
+            BOOKTITLE = {{EGSR 2019  Eurographics Symposium on Rendering}},
+            ADDRESS = {Strasbourg, France},
+            ORGANIZATION = {{Tamy Boubekeur and Pradeep Sen}},
+            YEAR = {2019},
+            KEYWORDS = {Computer graphics ; Ray tracing ; Visibility},
+            PDF = {https://hal.archives-ouvertes.fr/hal-02279950/file/paper.pdf},
+            HAL_ID = {hal-02279950},
+            HAL_VERSION = {v1},
+        }
+        </code>
+      </pre>
+      
+      <h2>Example sequence #1</h2>
+
+      <p>
+        The following sequence is made of 100 frames. The sequence is a shot extracted from the Blender open movie Agent 327 made freely available by the Blender Institute. The standard method renders each frame independently. Our methods jointly renders all the frames, and shares paths between frames with overlapping exposure intervals. Our algorithm both reduces the variance and the perceived flickering for the same computation budget.
+      </p>
+
+      <h3>Total time budget 4000 seconds (40 seconds / frame) for the whole sequence</h3>
+
+      <table>
+        <tr>
+          <td style="text-align: center">frame 10</td>
+          <td style="text-align: center">frame 12</td>
+          <td style="text-align: center">frame 14</td>
+          <td style="text-align: center">frame 16</td>
+          <td style="text-align: center">frame 18</td>
+        </tr>
+        <tr>
+          <td><img width="100%" src="data/barber/multi-010-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-011-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-012-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-013-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-014-time-003609.png"></td>
+        </tr>
+        <tr>
+          <td><img width="100%" src="data/barber/multi-015-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-016-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-017-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-018-time-003609.png"></td>
+          <td><img width="100%" src="data/barber/multi-019-time-003609.png"></td>
+        </tr>
+        <tr>
+          <td style="text-align: center">frame 20</td>
+          <td style="text-align: center">frame 22</td>
+          <td style="text-align: center">frame 24</td>
+          <td style="text-align: center">frame 26</td>
+          <td style="text-align: center">frame 28</td>
+        </tr>
+      </table>
+
+      <h3>Video comparison</h3>
+
+      <div class="compare">
+        <video 
+          class="compared compared-vertical" 
+          data-compare-top="standard"
+          data-compare-bottom="ours"
+          loop muted
+          >
+          <!-- <source src="barber.webm" type="video/webm"> -->
+          <source src="data/barber-4000.mp4" type="video/mp4">
+          <p>Your browser doesn't support HTML5 video. Here is a <a href="barber.mp4">link to the video</a> instead.</p>
+        </video>
+      </div>
+
+      <h3>Single frame comparison</h3>
+
+      <div class="compare">
+        <img class="compared compared-left" data-compare="standard" src="data/single-038-time-004000.png"/>
+        <img class="compared compared-right" data-compare="ours" src="data/multi-038-time-004000.png"/>
+      </div>
+    
+      <h2>Example sequence #2</h2>
+
+      <p>
+        The following sequence shows 100 frames of a custom Cornell Box, with fast moving cubes and glossy materials. This sequence is complex to render since cameras may see tangent geometry while cubes are moving, which implies large variations of the Jacobian and temporal visibility changes. The flickering reduction is particularly visible on the ceiling.
+      </p>
+
+      <div class="compare">
+        <video 
+          class="compared compared-vertical" 
+          data-compare-top="standard"
+          data-compare-bottom="ours"
+          loop muted
+          >
+          <!-- <source src="barber.webm" type="video/webm"> -->
+          <source src="data/cornell.mp4" type="video/mp4">
+          <p>Your browser doesn't support HTML5 video. Here is a <a href="cornell.mp4">link to the video</a> instead.</p>
+        </video>
+      </div>
+
+      <h2>Example sequence #3</h2>
+
+      <p>
+        Comparison on a 9 images sequence of a static scene with slightly glossy materials.
+      </p>
+
+      <table>
+        <tr>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f0.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f1.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f2.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f3.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f4.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f5.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f6.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f7.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggls_c_mvpt_r_i0064_p0004_f8.bmp"/></td>
+        </tr>
+      </table>
+
+      <div class="image-container">
+        <img width="100%" src="data/smallmvpt/sequence.gif"/>
+      </div>
+      
+      <div class="compare">
+        <img class="compared compared-left" data-compare="standard 150s" src="data/smallmvpt/s4_noreuse.bmp"/>
+        <img class="compared compared-right" data-compare="ours 150s" src="data/smallmvpt/s4_reuse.bmp"/>
+      </div>
+
+      <h2>Example sequence #4</h2>
+
+      <p>
+        Comparison on a 9 images sequence (scene 0).
+      </p>
+
+      <table>
+        <tr>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_0.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_1.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_2.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_3.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_4.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_5.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_6.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_7.bmp"/></td>
+          <td><img width="100%" src="data/smallmvpt/ggbs_s_mvpt_8.bmp"/></td>
+        </tr>
+      </table>
+
+      <div class="image-container">
+        <img width="100%" src="data/smallmvpt/sequence2.gif"/>
+      </div>
+
+      <div class="compare">
+        <img class="compared compared-left" data-compare="standard 80s" src="data/smallmvpt/s0_noreuse.bmp"/>
+        <img class="compared compared-right" data-compare="ours 80s" src="data/smallmvpt/s0_reuse.bmp"/>
+      </div>
+
+    </div>
+    <script type="text/javascript" src="data/compare.js"></script>
+  </body>
+</html>
