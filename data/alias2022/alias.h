@@ -61,7 +61,7 @@ struct AliasTable
         const int id = n * u;        // uniform [0, n)
         assert(id < n);
         const float u2 = n * u - id; // uniform [0, 1)
-        return sample(u, u2);
+        return u2 < alias[id].t ? id : alias[id].i;
     }
 };
 
