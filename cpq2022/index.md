@@ -1,6 +1,14 @@
+---
+markdown_extensions:
+    - pymdownx.highlight:
+        noclasses": true
+        pygments_style": "manni"
+---
+
 <!-- mathjax -->
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
 <style type="text/css">
     img[alt=image] { 
         display: block;
@@ -96,7 +104,7 @@ We thus observe that a point inside the triangle has three positive barycentric 
 
 #### Projected barycentric coordinates
 
-Note that we don't need to know the point \\(\mathbf{P}\\) to compute the projected barycentric coordinates of a point \\(\mathbf{Q}\\) in space. We instead compute \\(\mathbf{u}\\) and \\(\mathbf{v}\\) using some properties of the tetrahedral barycentric coordinates [**Heidrich05**] (because \\(\mathbf{ABCQ}\\) is a tetrahedron):
+Note that we don't need to know the point \\(\mathbf{P}\\) to compute the projected barycentric coordinates of a point \\(\mathbf{Q}\\) in space. We instead compute \\(\mathbf{u}\\) and \\(\mathbf{v}\\) using some properties of the tetrahedral barycentric coordinates [**Heidrich05**](#Heidrich05) (because \\(\mathbf{ABCQ}\\) is a tetrahedron):
 
 $$
 \begin{aligned}
@@ -173,7 +181,7 @@ Then we can determine if a query point \\(\mathbf{Q}\\) is closest to one of the
 
 Note that the edge orientation matters in the calculations (i.e. we use \\(\mathbf{CA}\\) to compute the projection and not \\(\mathbf{AC}\\)). 
 
-Afterwards, we compute the projected barycentric coordinates of the query point. 
+In any of the first three case is satisfied, we compute the projected barycentric coordinates of the query point. 
 Then we can determine if a query point \\(\mathbf{Q}\\) is closest to one of the triangle edges (<span style="color: #2e7d32">**green**</span> areas)
 We test both on which side of a an edge the query point projects to, and if the query point projects between the edge extremities (the interpolation parameter is in range:
 
@@ -181,7 +189,7 @@ We test both on which side of a an edge the query point projects to, and if the 
 - if \\(\mathbf{w < 0}\\) and \\(\mathbf{0 < t_{bc} < 1}\\), the closest point to \\(\mathbf{Q}\\) is its orthogonal projection on edge \\(\mathbf{BC}\\).
 - if \\(\mathbf{u < 0}\\) and \\(\mathbf{0 < t_{ca} < 1}\\), the closest point to \\(\mathbf{Q}\\) is its orthogonal projection on edge \\(\mathbf{CA}\\).
 
-If all three barycentric coordinates are positive, the closest point to \\(\mathbf{Q}\\) is its orthogonal projection in the triangle, that is \\(\mathbf{P}\\). 
+If all three barycentric coordinates are positive, the closest point to \\(\mathbf{Q}\\) is its orthogonal projection in the triangle (<span style="color: #1565c0">**blue**</span> areas), that is \\(\mathbf{P}\\). 
 
 
 ### Code
@@ -214,13 +222,13 @@ struct Triangle
     {
         // compute interpolation parameter on edge AB
         const Vector dab = b-a;
-        const float tab = dot(queryPoint-a, dab)/dot(dab, dab);  
+        const float tab = dot(q-a, dab)/dot(dab, dab);  
         // compute interpolation parameter on edge CA
         const Vector dca = a-c;
-        const float tca = dot(queryPoint-c, dca)/dot(dca, dca);  
+        const float tca = dot(q-c, dca)/dot(dca, dca);  
         // compute interpolation parameter on edge BC
         const Vector dbc = c-b;
-        const float tbc = dot(queryPoint-b, dbc)/dot(dbc, dbc); 
+        const float tbc = dot(q-b, dbc)/dot(dbc, dbc); 
 
         // test if closest point is A
         if( tca >= 1 && tab <= 0 )      return a;   
@@ -231,7 +239,7 @@ struct Triangle
 
         // compute barycentric coordinates of the projected point
         float u, v, w;
-        computeProjectedBarycentrics(queryPoint, u, v);
+        computeProjectedBarycentrics(q, u, v);
         w = 1.f-u-v;
 
         // test if closest point is on the edge CA
@@ -242,18 +250,26 @@ struct Triangle
         else if( w < 0 && tbc > 0 && tbc < 1 ) return b + tbc * dbc;    
 
         // else return interpolated closest point within the triangle
-        return a + u*dab - v*dca; // saves 1 multiplication
+        return a + u*dab - v*dca;
     }
 };
 ``` 
 
 
+### References
 
-<!-- #### Bonus: triangle without obtuse angles
+<a name="Heidrich05">
+[**Heidrich05**]: *Computing the Barycentric Coordinates of a Projected Point*, **Wolfgang Heidrich**, 2005*
+</a>
+
+
+### Bonus: triangle without obtuse angles
 
 We showed that triangles having obtuse angles requires edge projections to determine the closest point precisely.
-On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}}\\) / \\(\mathbf{90°}\\), the barycentric coordinates are sufficient to find the closest point, because each area depicted below corresponds to one unique solution:
+On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}}\\) or \\(\mathbf{90°}\\), the barycentric coordinates are sufficient to find the closest point.
 
+<!-- 
+This is because each area depicted below corresponds to one unique solution:
 - if \\(\mathbf{P}\\) is in the <span style="color: #ff6600">**left orange**</span> area, the closest point is \\(\mathbf{A}\\)
 - if \\(\mathbf{P}\\) is in the <span style="color: #ff6600">**right orange**</span> area, the closest point is \\(\mathbf{B}\\)
 - if \\(\mathbf{P}\\) is in the <span style="color: #ff6600">**top orange**</span> area, the closest point is \\(\mathbf{C}\\)
@@ -262,7 +278,8 @@ On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}
 - if \\(\mathbf{P}\\) is in the <span style="color: #2e7d32">**left green**</span> area, the closest point is on edge \\(\mathbf{CA}\\) (\\(\mathbf{C}\\) and \\(\mathbf{A}\\) included)
 - if \\(\mathbf{P}\\) is in the <span style="color: #1565c0">**blue**</span> area, the closest point is simply \\(\mathbf{P}\\)
 
-![image](cpq-project-bary-all.svg)
+![image](cpq-project-bary-all.svg) 
+-->
 
 ```c++
 // Returns the point on the line (o,e) that is the closest the query point q.
@@ -295,8 +312,4 @@ Point closestToTriangleNoObtuse(const Point& a, const Point& b, const Point& c, 
     // else return interpolated closest point within the triangle
     return u*b + v*c + (1.f-u-v)*a;
 }
-``` -->
-
-### References
-
-[**Heidrich05**]: *Computing the Barycentric Coordinates of a Projected Point*, **Wolfgang Heidrich**, 2005
+```

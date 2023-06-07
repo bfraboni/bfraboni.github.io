@@ -1,6 +1,5 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body {
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="markdown_extensions" content=",- pymdownx.highlight:,noclasses&quot;: true,pygments_style&quot;: &quot;manni&quot;"><style>body {
   max-width: 980px;
-  outline: 1300px solid #fff;
   margin: 16px auto;
 }
 
@@ -1144,7 +1143,7 @@ Conversely if the point \(\mathbf{P}\) is in the the <span style="color: #ff6600
 <p>We thus observe that a point inside the triangle has three positive barycentric coordinates (<span style="color: #1565c0"><strong>blue</strong></span> area), and that a point outside the triangle has either one (<span style="color: #2e7d32"><strong>green</strong></span> areas) or two (<span style="color: #ff6600"><strong>orange</strong></span> areas) negative barycentric coordinates. </p>
 <p><img alt="image" src="cpq-project-bary-all.svg" /></p>
 <h4 id="projected-barycentric-coordinates">Projected barycentric coordinates<a class="headerlink" href="#projected-barycentric-coordinates" title="Permanent link"></a></h4>
-<p>Note that we don&rsquo;t need to know the point \(\mathbf{P}\) to compute the projected barycentric coordinates of a point \(\mathbf{Q}\) in space. We instead compute \(\mathbf{u}\) and \(\mathbf{v}\) using some properties of the tetrahedral barycentric coordinates [<strong>Heidrich05</strong>] (because \(\mathbf{ABCQ}\) is a tetrahedron):</p>
+<p>Note that we don&rsquo;t need to know the point \(\mathbf{P}\) to compute the projected barycentric coordinates of a point \(\mathbf{Q}\) in space. We instead compute \(\mathbf{u}\) and \(\mathbf{v}\) using some properties of the tetrahedral barycentric coordinates <a href="#Heidrich05"><strong>Heidrich05</strong></a> (because \(\mathbf{ABCQ}\) is a tetrahedron):</p>
 <p>$$
 \begin{aligned}
 \mathbf{\vec{N}} &amp;\mathbf{ =\vec{AB} \times \vec{AC} }\\
@@ -1202,7 +1201,7 @@ Then we can determine if a query point \(\mathbf{Q}\) is closest to one of the t
 <li>if \(\mathbf{t_{ca} \leq 0}\) and \(\mathbf{t_{bc} \geq 1}\), the closest point to \(\mathbf{Q}\) is \(\mathbf{C}\).</li>
 </ul>
 <p>Note that the edge orientation matters in the calculations (i.e. we use \(\mathbf{CA}\) to compute the projection and not \(\mathbf{AC}\)). </p>
-<p>Afterwards, we compute the projected barycentric coordinates of the query point. 
+<p>In any of the first three case is satisfied, we compute the projected barycentric coordinates of the query point. 
 Then we can determine if a query point \(\mathbf{Q}\) is closest to one of the triangle edges (<span style="color: #2e7d32"><strong>green</strong></span> areas)
 We test both on which side of a an edge the query point projects to, and if the query point projects between the edge extremities (the interpolation parameter is in range:</p>
 <ul>
@@ -1210,7 +1209,7 @@ We test both on which side of a an edge the query point projects to, and if the 
 <li>if \(\mathbf{w &lt; 0}\) and \(\mathbf{0 &lt; t_{bc} &lt; 1}\), the closest point to \(\mathbf{Q}\) is its orthogonal projection on edge \(\mathbf{BC}\).</li>
 <li>if \(\mathbf{u &lt; 0}\) and \(\mathbf{0 &lt; t_{ca} &lt; 1}\), the closest point to \(\mathbf{Q}\) is its orthogonal projection on edge \(\mathbf{CA}\).</li>
 </ul>
-<p>If all three barycentric coordinates are positive, the closest point to \(\mathbf{Q}\) is its orthogonal projection in the triangle, that is \(\mathbf{P}\). </p>
+<p>If all three barycentric coordinates are positive, the closest point to \(\mathbf{Q}\) is its orthogonal projection in the triangle (<span style="color: #1565c0"><strong>blue</strong></span> areas), that is \(\mathbf{P}\). </p>
 <h3 id="code">Code<a class="headerlink" href="#code" title="Permanent link"></a></h3>
 <p>We provide the C++ functions that computes the closest point to a triangle next.</p>
 <div class="highlight"><pre><span class="k">struct</span> <span class="n">Triangle</span> 
@@ -1238,13 +1237,13 @@ We test both on which side of a an edge the query point projects to, and if the 
     <span class="p">{</span>
         <span class="c1">// compute interpolation parameter on edge AB</span>
         <span class="k">const</span> <span class="n">Vector</span> <span class="n">dab</span> <span class="o">=</span> <span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">;</span>
-        <span class="k">const</span> <span class="kt">float</span> <span class="n">tab</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">queryPoint</span><span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="n">dab</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">dab</span><span class="p">,</span> <span class="n">dab</span><span class="p">);</span>  
+        <span class="k">const</span> <span class="kt">float</span> <span class="n">tab</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="n">dab</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">dab</span><span class="p">,</span> <span class="n">dab</span><span class="p">);</span>  
         <span class="c1">// compute interpolation parameter on edge CA</span>
         <span class="k">const</span> <span class="n">Vector</span> <span class="n">dca</span> <span class="o">=</span> <span class="n">a</span><span class="o">-</span><span class="n">c</span><span class="p">;</span>
-        <span class="k">const</span> <span class="kt">float</span> <span class="n">tca</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">queryPoint</span><span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="n">dca</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">dca</span><span class="p">,</span> <span class="n">dca</span><span class="p">);</span>  
+        <span class="k">const</span> <span class="kt">float</span> <span class="n">tca</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="n">dca</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">dca</span><span class="p">,</span> <span class="n">dca</span><span class="p">);</span>  
         <span class="c1">// compute interpolation parameter on edge BC</span>
         <span class="k">const</span> <span class="n">Vector</span> <span class="n">dbc</span> <span class="o">=</span> <span class="n">c</span><span class="o">-</span><span class="n">b</span><span class="p">;</span>
-        <span class="k">const</span> <span class="kt">float</span> <span class="n">tbc</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">queryPoint</span><span class="o">-</span><span class="n">b</span><span class="p">,</span> <span class="n">dbc</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">dbc</span><span class="p">,</span> <span class="n">dbc</span><span class="p">);</span> 
+        <span class="k">const</span> <span class="kt">float</span> <span class="n">tbc</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="n">b</span><span class="p">,</span> <span class="n">dbc</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">dbc</span><span class="p">,</span> <span class="n">dbc</span><span class="p">);</span> 
 
         <span class="c1">// test if closest point is A</span>
         <span class="k">if</span><span class="p">(</span> <span class="n">tca</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">tab</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">)</span>      <span class="k">return</span> <span class="n">a</span><span class="p">;</span>   
@@ -1255,7 +1254,7 @@ We test both on which side of a an edge the query point projects to, and if the 
 
         <span class="c1">// compute barycentric coordinates of the projected point</span>
         <span class="kt">float</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">;</span>
-        <span class="n">computeProjectedBarycentrics</span><span class="p">(</span><span class="n">queryPoint</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+        <span class="n">computeProjectedBarycentrics</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
         <span class="n">w</span> <span class="o">=</span> <span class="mf">1.f</span><span class="o">-</span><span class="n">u</span><span class="o">-</span><span class="n">v</span><span class="p">;</span>
 
         <span class="c1">// test if closest point is on the edge CA</span>
@@ -1266,16 +1265,20 @@ We test both on which side of a an edge the query point projects to, and if the 
         <span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">tbc</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">tbc</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="p">)</span> <span class="k">return</span> <span class="n">b</span> <span class="o">+</span> <span class="n">tbc</span> <span class="o">*</span> <span class="n">dbc</span><span class="p">;</span>    
 
         <span class="c1">// else return interpolated closest point within the triangle</span>
-        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">u</span><span class="o">*</span><span class="n">dab</span> <span class="o">-</span> <span class="n">v</span><span class="o">*</span><span class="n">dca</span><span class="p">;</span> <span class="c1">// saves 1 multiplication</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">u</span><span class="o">*</span><span class="n">dab</span> <span class="o">-</span> <span class="n">v</span><span class="o">*</span><span class="n">dca</span><span class="p">;</span>
     <span class="p">}</span>
 <span class="p">};</span>
 </pre></div>
 
-<!-- #### Bonus: triangle without obtuse angles
-
-We showed that triangles having obtuse angles requires edge projections to determine the closest point precisely.
-On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}}\\) / \\(\mathbf{90°}\\), the barycentric coordinates are sufficient to find the closest point, because each area depicted below corresponds to one unique solution:
-
+<h3 id="references">References<a class="headerlink" href="#references" title="Permanent link"></a></h3>
+<p><a name="Heidrich05">
+[<strong>Heidrich05</strong>]: <em>Computing the Barycentric Coordinates of a Projected Point</em>, <strong>Wolfgang Heidrich</strong>, 2005*
+</a></p>
+<h3 id="bonus-triangle-without-obtuse-angles">Bonus: triangle without obtuse angles<a class="headerlink" href="#bonus-triangle-without-obtuse-angles" title="Permanent link"></a></h3>
+<p>We showed that triangles having obtuse angles requires edge projections to determine the closest point precisely.
+On the other hand, for triangles with angles only up to \(\mathbf{\frac{\pi}{2}}\) or \(\mathbf{90°}\), the barycentric coordinates are sufficient to find the closest point.</p>
+<!-- 
+This is because each area depicted below corresponds to one unique solution:
 - if \\(\mathbf{P}\\) is in the <span style="color: #ff6600">**left orange**</span> area, the closest point is \\(\mathbf{A}\\)
 - if \\(\mathbf{P}\\) is in the <span style="color: #ff6600">**right orange**</span> area, the closest point is \\(\mathbf{B}\\)
 - if \\(\mathbf{P}\\) is in the <span style="color: #ff6600">**top orange**</span> area, the closest point is \\(\mathbf{C}\\)
@@ -1284,40 +1287,37 @@ On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}
 - if \\(\mathbf{P}\\) is in the <span style="color: #2e7d32">**left green**</span> area, the closest point is on edge \\(\mathbf{CA}\\) (\\(\mathbf{C}\\) and \\(\mathbf{A}\\) included)
 - if \\(\mathbf{P}\\) is in the <span style="color: #1565c0">**blue**</span> area, the closest point is simply \\(\mathbf{P}\\)
 
-![image](cpq-project-bary-all.svg)
+![image](cpq-project-bary-all.svg) 
+-->
 
-```c++
-// Returns the point on the line (o,e) that is the closest the query point q.
-Point closestToLine(const Point& o, const Point& e, const Point& q) 
-{
-    // project point q onto line (o,e)
-    Vector d = e-o;
-    float t = dot(q-o, e-o)/dot(d, d); // avoid std::sqrt 
+<div class="highlight"><pre><span class="c1">// Returns the point on the line (o,e) that is the closest the query point q.</span>
+<span class="n">Point</span> <span class="nf">closestToLine</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">o</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="c1">// project point q onto line (o,e)</span>
+    <span class="n">Vector</span> <span class="n">d</span> <span class="o">=</span> <span class="n">e</span><span class="o">-</span><span class="n">o</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">t</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="n">o</span><span class="p">,</span> <span class="n">e</span><span class="o">-</span><span class="n">o</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span> <span class="c1">// avoid std::sqrt </span>
 
-    // if proj=o+t*d is strictly between o and e, it is the closest to point q
-    if( t > 0 && t < 1 ) return o + t * d;
+    <span class="c1">// if proj=o+t*d is strictly between o and e, it is the closest to point q</span>
+    <span class="k">if</span><span class="p">(</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="p">)</span> <span class="k">return</span> <span class="n">o</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="n">d</span><span class="p">;</span>
 
-    // if proj is beyond o or e, returns directly the closest extremity to ensure robustness
-    return t <= 0 ? o : e;
-}
+    <span class="c1">// if proj is beyond o or e, returns directly the closest extremity to ensure robustness</span>
+    <span class="k">return</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">?</span> <span class="nl">o</span> <span class="p">:</span> <span class="n">e</span><span class="p">;</span>
+<span class="p">}</span>
 
-// WARNING: this does not work with triangles containing obtuse angles, 
-//          only works for triangles with angles up to 90°
-Point closestToTriangleNoObtuse(const Point& a, const Point& b, const Point& c, const Point& q)
-{
-    // compute barycentric coordinates of the projected point
-    float u, v;
-    computeProjectedBarycentrics(q, u, v);
+<span class="c1">// WARNING: this does not work with triangles containing obtuse angles, </span>
+<span class="c1">//          only works for triangles with angles up to 90°</span>
+<span class="n">Point</span> <span class="nf">closestToTriangleNoObtuse</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">,</span> <span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// compute barycentric coordinates of the projected point</span>
+    <span class="kt">float</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">;</span>
+    <span class="n">computeProjectedBarycentrics</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
 
-    // if one of the barycentric coordinate is negative, the closest point is on an edge
-    if( u < 0.f )        return closestToLine(c, a, q);  // closest point is on the edge CA
-    else if( v < 0.f )   return closestToLine(a, b, q);  // closest point is on the edge AB
-    else if( u+v > 1.f ) return closestToLine(b, c, q);  // closest point is on the edge BC
+    <span class="c1">// if one of the barycentric coordinate is negative, the closest point is on an edge</span>
+    <span class="k">if</span><span class="p">(</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="mf">0.f</span> <span class="p">)</span>        <span class="k">return</span> <span class="n">closestToLine</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">q</span><span class="p">);</span>  <span class="c1">// closest point is on the edge CA</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mf">0.f</span> <span class="p">)</span>   <span class="k">return</span> <span class="n">closestToLine</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">q</span><span class="p">);</span>  <span class="c1">// closest point is on the edge AB</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="n">u</span><span class="o">+</span><span class="n">v</span> <span class="o">&gt;</span> <span class="mf">1.f</span> <span class="p">)</span> <span class="k">return</span> <span class="n">closestToLine</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">q</span><span class="p">);</span>  <span class="c1">// closest point is on the edge BC</span>
 
-    // else return interpolated closest point within the triangle
-    return u*b + v*c + (1.f-u-v)*a;
-}
-``` -->
-
-<h3 id="references">References<a class="headerlink" href="#references" title="Permanent link"></a></h3>
-<p>[<strong>Heidrich05</strong>]: <em>Computing the Barycentric Coordinates of a Projected Point</em>, <strong>Wolfgang Heidrich</strong>, 2005</p></article></body></html>
+    <span class="c1">// else return interpolated closest point within the triangle</span>
+    <span class="k">return</span> <span class="n">u</span><span class="o">*</span><span class="n">b</span> <span class="o">+</span> <span class="n">v</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.f</span><span class="o">-</span><span class="n">u</span><span class="o">-</span><span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">a</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div></article></body></html>

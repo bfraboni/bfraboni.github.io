@@ -1,0 +1,74 @@
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.monokai .hll { background-color: #ffffcc }
+.monokai { background: #f8f8f8; }
+.monokai .c { color: #3D7B7B; font-style: italic } /* Comment */
+.monokai .err { border: 1px solid #FF0000 } /* Error */
+.monokai .k { color: #008000; font-weight: bold } /* Keyword */
+.monokai .o { color: #666666 } /* Operator */
+.monokai .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.monokai .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.monokai .cp { color: #9C6500 } /* Comment.Preproc */
+.monokai .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.monokai .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.monokai .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.monokai .gd { color: #A00000 } /* Generic.Deleted */
+.monokai .ge { font-style: italic } /* Generic.Emph */
+.monokai .gr { color: #E40000 } /* Generic.Error */
+.monokai .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.monokai .gi { color: #008400 } /* Generic.Inserted */
+.monokai .go { color: #717171 } /* Generic.Output */
+.monokai .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.monokai .gs { font-weight: bold } /* Generic.Strong */
+.monokai .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.monokai .gt { color: #0044DD } /* Generic.Traceback */
+.monokai .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.monokai .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.monokai .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.monokai .kp { color: #008000 } /* Keyword.Pseudo */
+.monokai .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.monokai .kt { color: #B00040 } /* Keyword.Type */
+.monokai .m { color: #666666 } /* Literal.Number */
+.monokai .s { color: #BA2121 } /* Literal.String */
+.monokai .na { color: #687822 } /* Name.Attribute */
+.monokai .nb { color: #008000 } /* Name.Builtin */
+.monokai .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.monokai .no { color: #880000 } /* Name.Constant */
+.monokai .nd { color: #AA22FF } /* Name.Decorator */
+.monokai .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.monokai .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.monokai .nf { color: #0000FF } /* Name.Function */
+.monokai .nl { color: #767600 } /* Name.Label */
+.monokai .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.monokai .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.monokai .nv { color: #19177C } /* Name.Variable */
+.monokai .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.monokai .w { color: #bbbbbb } /* Text.Whitespace */
+.monokai .mb { color: #666666 } /* Literal.Number.Bin */
+.monokai .mf { color: #666666 } /* Literal.Number.Float */
+.monokai .mh { color: #666666 } /* Literal.Number.Hex */
+.monokai .mi { color: #666666 } /* Literal.Number.Integer */
+.monokai .mo { color: #666666 } /* Literal.Number.Oct */
+.monokai .sa { color: #BA2121 } /* Literal.String.Affix */
+.monokai .sb { color: #BA2121 } /* Literal.String.Backtick */
+.monokai .sc { color: #BA2121 } /* Literal.String.Char */
+.monokai .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.monokai .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.monokai .s2 { color: #BA2121 } /* Literal.String.Double */
+.monokai .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.monokai .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.monokai .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.monokai .sx { color: #008000 } /* Literal.String.Other */
+.monokai .sr { color: #A45A77 } /* Literal.String.Regex */
+.monokai .s1 { color: #BA2121 } /* Literal.String.Single */
+.monokai .ss { color: #19177C } /* Literal.String.Symbol */
+.monokai .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.monokai .fm { color: #0000FF } /* Name.Function.Magic */
+.monokai .vc { color: #19177C } /* Name.Variable.Class */
+.monokai .vg { color: #19177C } /* Name.Variable.Global */
+.monokai .vi { color: #19177C } /* Name.Variable.Instance */
+.monokai .vm { color: #19177C } /* Name.Variable.Magic */
+.monokai .il { color: #666666 } /* Literal.Number.Integer.Long */
