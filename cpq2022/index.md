@@ -19,7 +19,7 @@ markdown_extensions:
     }
 </style>
 
-## Triangle closest point
+# Triangle closest point
 
 Some 3D applications requires to compute the point on the surface defined by a triangulated mesh that is closest to a query point in space. 
 At first glance, this may seem like an easy task, but in practice it is tricky.
@@ -36,7 +36,7 @@ To learn more about bounding volume hierarchies, [Jakko Bikker](https://twitter.
 
 Now we get some context, let's see how to compute the closest point to a triangle.
 
-### Geometric configuration
+## Geometric configuration
 
 Given a query point \\(\mathbf{Q}\\) in space, and a triangle defined by three vertices \\(\mathbf{A}\\), \\(\mathbf{B}\\) anc \\(\mathbf{C}\\), we want to find the point inside the triangle that is the closest to \\(\mathbf{Q}\\).
 The closest point lies in the triangle plane and can be one of the following:
@@ -56,7 +56,7 @@ Note that each marked angle below is a right angle.
 
 ![image](cpq-configuration.svg)
 
-### Barycentric coordinates
+## Barycentric coordinates
 
 The barycentric coordinates of a point are the coefficients that expresses its location relative to the triangle vertices \\(\mathbf{A}\\), \\(\mathbf{B}\\) and \\(\mathbf{C}\\). 
 
@@ -65,6 +65,7 @@ Using a barycentric coordinate system a point \\(\mathbf{P}\\) in the triangle p
 $$ \mathbf{P=w \cdot A+u \cdot B+v \cdot C}$$
 
 where the sum of the coefficients is equal to one, \\(\mathbf{w+u+v = 1}\\). It is thus not necessary to compute \\(\mathbf{w}\\) explicitly, as \\(\mathbf{w=1-u-v}\\). This can be emphasized by rewriting the above equation relative to one origin vertex, for example \\(\mathbf{A}\\), and its two related edges \\(\mathbf{\vec{AB}}\\) and \\(\mathbf{\vec{AC}}\\):
+
 $$
 \begin{aligned}
 \mathbf{P} & \mathbf{=(1-u-v) \cdot A+u \cdot B+v \cdot C} \\\ 
@@ -88,7 +89,7 @@ Signed area calculations also require the use of consistently oriented edges, e.
 
 <!-- ![image](cpq-project-bary.svg) -->
 
-#### Signs of barycentric coordinates
+### Signs of barycentric coordinates
 
 Due to the above formulation, the sign of a barycentric coordinate flip depending on which side of an edge the point \\(\mathbf{P}\\) is. For example below, if the point \\(\mathbf{P}\\) is in the <span style="color: #2e7d32">**green**</span> area its barycentric coordinate \\(\mathbf{u}\\) relative to vertex \\(\mathbf{B}\\) (or relative to the opposite edge \\(\mathbf{CA}\\)) is negative.
 In fact, the triangles \\(\mathbf{ABC}\\) and \\(\mathbf{PCA}\\) have not the same orientation, one counter clockwise and the other clockwise, therefore their signed areas have opposite signs. 
@@ -102,9 +103,9 @@ We thus observe that a point inside the triangle has three positive barycentric 
  
 ![image](cpq-project-bary-all.svg)
 
-#### Projected barycentric coordinates
+### Projected barycentric coordinates
 
-Note that we don't need to know the point \\(\mathbf{P}\\) to compute the projected barycentric coordinates of a point \\(\mathbf{Q}\\) in space. We instead compute \\(\mathbf{u}\\) and \\(\mathbf{v}\\) using some properties of the tetrahedral barycentric coordinates [**Heidrich05**](#Heidrich05) (because \\(\mathbf{ABCQ}\\) is a tetrahedron):
+Note that we don't need to know the point \\(\mathbf{P}\\) to compute the projected barycentric coordinates of a point \\(\mathbf{Q}\\) in space. We instead compute \\(\mathbf{u}\\) and \\(\mathbf{v}\\) using some properties of the tetrahedral barycentric coordinates [[Heidrich:2005]](#Heidrich2005) (because \\(\mathbf{ABCQ}\\) is a tetrahedron):
 
 $$
 \begin{aligned}
@@ -117,7 +118,7 @@ $$
 
 We can compute any pair of the three coordinates using the above equations and determine the third one implicitly, for example with \\(\mathbf{w=1-u-v}\\). 
 
-#### Barycentric coordinates limitation
+### Barycentric coordinates limitation
 
 Note that in the geometric situation below the angle \\(\mathbf{\widehat{C}}\\) is obtuse. 
 Therefore, given a point P in the <span style="color: #ff6600">**top orange**</span> area we can't determine whether the triangle closest point is \\(\mathbf{C}\\), on the edge \\(\mathbf{CA}\\) or on the edge \\(\mathbf{BC}\\) using its barycentric coordinates only. 
@@ -134,7 +135,7 @@ In fact, tracing the lines perpandicular to edges \\(\mathbf{CA}\\) and \\(\math
 
 Thus, in the general case, computing the projected barycentric coordinates of a query point \\(\mathbf{Q}\\) is not sufficient to determine its closest point within a triangle. The orthogonal projection onto each edges are required to determine precisely in which region the point \\(\mathbf{P}\\) is.  
 
-### Edge projection
+## Edge projection
 
 To determine whether a point is closest to a triangle vertex or to an edge, we will rely on edge projection.
 Given a point \\(\mathbf{Q}\\) in space, its orthogonal projection \\(\mathbf{P_{ab}}\\) on the edge \\(\mathbf{AB}\\) can be computed as follows:
@@ -166,7 +167,7 @@ We can determine in which part of the line \\(\mathbf{AB}\\) a point \\(\mathbf{
 
 This properties extends to other edges \\(\mathbf{BC}\\) and \\(\mathbf{CA}\\), and can help us determine whether a point \\(\mathbf{P}\\) is closest to one of the triangle vertices or to an edge as we shall see next.
 
-### Triangle closest point
+## Triangle closest point
 
 Combining the three edge projections and the barycentric coordinates allows us to derive the necessary conditions to determine the closest point within a triangle, as illustrated below.
 
@@ -192,9 +193,9 @@ We test both on which side of a an edge the query point projects to, and if the 
 If all three barycentric coordinates are positive, the closest point to \\(\mathbf{Q}\\) is its orthogonal projection in the triangle (<span style="color: #1565c0">**blue**</span> areas), that is \\(\mathbf{P}\\). 
 
 
-### Code
+## Code
 
-We provide the C++ functions that computes the closest point to a triangle next.
+We provide the C++ code to compute the closest point to a triangle next.
 
 ```c++
 struct Triangle 
@@ -256,17 +257,15 @@ struct Triangle
 ``` 
 
 
-### References
+## References
 
-<a name="Heidrich05">
-[**Heidrich05**]: *Computing the Barycentric Coordinates of a Projected Point*, **Wolfgang Heidrich**, 2005*
-</a>
+<a name="Heidrich2005" style="color: black" href="#Heidrich2005">[Heidrich:2005] **Computing the Barycentric Coordinates of a Projected Point**, *Wolfgang Heidrich*, 2005</a>
 
 
-### Bonus: triangle without obtuse angles
+## Bonus: Acute triangles (without obtuse angles)
 
-We showed that triangles having obtuse angles requires edge projections to determine the closest point precisely.
-On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}}\\) or \\(\mathbf{90°}\\), the barycentric coordinates are sufficient to find the closest point.
+We showed that triangles with obtuse angles require edge projections to determine the closest point precisely.
+On the other hand, for triangles with angles only up to \\(\mathbf{\frac{\pi}{2}}\\) or \\(\mathbf{90°}\\), *acute* triangles, the barycentric coordinates are sufficient to determine if the closest point lies on an edge or within the triangle. This results in the following simplified version:
 
 <!-- 
 This is because each area depicted below corresponds to one unique solution:
@@ -282,23 +281,24 @@ This is because each area depicted below corresponds to one unique solution:
 -->
 
 ```c++
-// Returns the point on the line (o,e) that is the closest the query point q.
+// Returns the point on the segment (o,e) that is the closest the query point q.
 Point closestToLine(const Point& o, const Point& e, const Point& q) 
 {
     // project point q onto line (o,e)
-    Vector d = e-o;
-    float t = dot(q-o, e-o)/dot(d, d); // avoid std::sqrt 
-    
-    // if proj=o+t*d is strictly between o and e, it is the closest to point q
-    if( t > 0 && t < 1 ) return o + t * d;
+    const Vector d = e-o;
+    const float t = dot(q-o, d)/dot(d, d); // avoid std::sqrt
 
-    // if proj is beyond o or e, returns directly the closest extremity to ensure robustness
-    return t <= 0 ? o : e;
+    // if the projected point is beyond o or e, returns directly 
+    // the closest segment extremity to ensure robustness
+    if (t <= 0.f) return o;
+    if (t >= 1.f) return e;
+    
+    // else the projected point lies strictly between o and e
+    return o + t * d;
 }
 
-// WARNING: this does not work with triangles containing obtuse angles, 
-//          only works for triangles with angles up to 90°
-Point closestToTriangleNoObtuse(const Point& a, const Point& b, const Point& c, const Point& q)
+// WARNING: this only works for acute triangles
+Point closestToAcute(const Point& a, const Point& b, const Point& c, const Point& q)
 {
     // compute barycentric coordinates of the projected point
     float u, v;
